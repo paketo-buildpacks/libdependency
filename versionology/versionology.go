@@ -1,7 +1,6 @@
 package versionology
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 
@@ -30,11 +29,26 @@ func ConstraintsToString(semverVersions []Constraint) []string {
 func LogAllVersions(id, description string, versions []HasVersion) {
 	fmt.Printf("Found %d versions of %s %s\n", len(versions), id, description)
 
-	if output, err := json.MarshalIndent(HasVersionToString(versions), "", " "); err != nil {
-		fmt.Printf("error marshalling versions from upstream: %s", err)
-	} else {
-		fmt.Println(string(output))
+	sort.Slice(versions, func(i, j int) bool {
+		return versions[i].GetVersion().GreaterThan(versions[j].GetVersion())
+	})
+
+	fmt.Printf("[\n  ")
+	strings := HasVersionToString(versions)
+	for i, s := range strings {
+		fmt.Printf(`"%s"`, s)
+
+		if i != len(strings)-1 {
+			fmt.Print(",")
+		}
+
+		if i > 0 && (i+1)%5 == 0 {
+			fmt.Printf("\n  ")
+		} else if i != len(strings)-1 {
+			fmt.Printf(" ")
+		}
 	}
+	fmt.Printf("\n]\n")
 }
 
 func FilterVersionsByConstraints(inputVersions []*semver.Version, constraints []*semver.Constraints) []*semver.Version {
