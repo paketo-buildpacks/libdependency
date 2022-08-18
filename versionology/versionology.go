@@ -31,7 +31,7 @@ func LogAllVersions(id, description string, versions []HasVersion) {
 	fmt.Printf("Found %d versions of %s %s\n", len(versions), id, description)
 
 	if output, err := json.MarshalIndent(HasVersionToString(versions), "", " "); err != nil {
-		fmt.Printf("error marshalling versions from upstream: %w", err)
+		fmt.Printf("error marshalling versions from upstream: %s", err)
 	} else {
 		fmt.Println(string(output))
 	}

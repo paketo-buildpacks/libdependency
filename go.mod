@@ -7,7 +7,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/anchore/packageurl-go v0.1.1-0.20220428202044-a072fa3cb6d7
 	github.com/go-enry/go-license-detector/v4 v4.3.0
-	github.com/joshuatcasey/collections v0.0.0-20220815152510-dcb7b9648b15
+	github.com/joshuatcasey/collections v0.1.0
 	github.com/onsi/gomega v1.20.0
 	github.com/paketo-buildpacks/occam v0.12.0
 	github.com/paketo-buildpacks/packit/v2 v2.4.1
