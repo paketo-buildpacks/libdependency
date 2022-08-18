@@ -108,12 +108,10 @@ func FilterHasVersionsByConstraints(id string, inputVersions []HasVersion, const
 			constraintsToOutputVersion = constraintsToOutputVersion[len(constraintsToOutputVersion)-constraint.Patches:]
 		}
 
-		outputVersions = append(outputVersions, constraintsToOutputVersion...)
-	}
-
-	for constraint, versions := range constraintsToOutputVersions {
 		constraintDescription := fmt.Sprintf("for constraint %s, after limiting for patches", constraint.Constraint.String())
-		LogAllVersions(id, constraintDescription, versions)
+		LogAllVersions(id, constraintDescription, constraintsToOutputVersion)
+
+		outputVersions = append(outputVersions, constraintsToOutputVersion...)
 	}
 
 	if len(constraints) < 1 {
