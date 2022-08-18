@@ -35,6 +35,15 @@ func LogAllVersions(id, description string, versions []HasVersion) {
 
 	fmt.Printf("[\n  ")
 	strings := HasVersionToString(versions)
+
+	maxWidth := make([]int, 5)
+	for i, s := range strings {
+		length := len(s)
+		if length > maxWidth[i%5] {
+			maxWidth[i%5] = length
+		}
+	}
+
 	for i, s := range strings {
 		fmt.Printf(`"%s"`, s)
 
@@ -45,7 +54,7 @@ func LogAllVersions(id, description string, versions []HasVersion) {
 		if i > 0 && (i+1)%5 == 0 {
 			fmt.Printf("\n  ")
 		} else if i != len(strings)-1 {
-			fmt.Printf(" ")
+			fmt.Printf("%*s", 1+maxWidth[i%5]-len(s), "")
 		}
 	}
 	fmt.Printf("\n]\n")
