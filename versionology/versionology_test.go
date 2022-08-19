@@ -81,4 +81,55 @@ func testVersionology(t *testing.T, context spec.G, it spec.S) {
 			Expect(versionology.SemverToString(results)).To(ContainElements("1.2.2", "1.2.3", "3.4.3", "3.4.5", "3.4.10", "36.36.36"))
 		})
 	})
+
+	context("FilterUpstreamVersionsByConstraints", func() {
+		it("will return only those upstream versions that match constraints and are newer than existing versions", func() {
+			upstreamVersions := []versionology.HasVersion{
+				versionology.NewSimpleHasVersion(semver.MustParse("6.0.0")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.0.1")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.0.2")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.0.3")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.0.4")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.0.5")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.0.6")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.0")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.1")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.2")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.3")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.4")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.5")),
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.6")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.0")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.1")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.2")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.3")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.4")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.5")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.6")),
+			}
+
+			c61, err := semver.NewConstraint("6.1.*")
+			Expect(err).NotTo(HaveOccurred())
+			c7, err := semver.NewConstraint("7.*.*")
+			Expect(err).NotTo(HaveOccurred())
+			constraints := []versionology.Constraint{
+				{
+					Constraint: c61,
+					Patches:    4,
+				},
+				{
+					Constraint: c7,
+					Patches:    2,
+				},
+			}
+			dependencies := []versionology.HasVersion{
+				versionology.NewSimpleHasVersion(semver.MustParse("6.1.0")),
+				versionology.NewSimpleHasVersion(semver.MustParse("7.0.4")),
+			}
+
+			filteredVersions := versionology.FilterUpstreamVersionsByConstraints("dep", upstreamVersions, constraints, dependencies)
+
+			Expect(filteredVersions.GetVersionStrings()).To(ConsistOf("6.1.3", "6.1.4", "6.1.5", "6.1.6", "7.0.5", "7.0.6"))
+		})
+	})
 }

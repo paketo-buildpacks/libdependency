@@ -89,9 +89,14 @@ func GetNewVersionsForId(id string, config cargo.Config, hasAllVersionsFunc HasV
 		return empty, err
 	}
 
+	hasVersionDependencies := make(versionology.HasVersionArray, len(dependencies))
+	for i := range dependencies {
+		hasVersionDependencies[i] = dependencies[i]
+	}
+
 	constraints, err := GetConstraintsById(id, config)
 
-	return versionology.FilterHasVersionsByConstraints(id, allVersions, constraints, dependencies), nil
+	return versionology.FilterUpstreamVersionsByConstraints(id, allVersions, constraints, hasVersionDependencies), nil
 }
 
 func PruneBuildpackToml(buildpackTomlPath string) error {

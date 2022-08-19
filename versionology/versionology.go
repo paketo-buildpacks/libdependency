@@ -51,10 +51,12 @@ func LogAllVersions(id, description string, versions []HasVersion) {
 			fmt.Print(",")
 		}
 
-		if i > 0 && (i+1)%5 == 0 {
-			fmt.Printf("\n  ")
-		} else if i != len(strings)-1 {
-			fmt.Printf("%*s", 1+maxWidth[i%5]-len(s), "")
+		if i != len(strings)-1 {
+			if i > 0 && (i+1)%5 == 0 {
+				fmt.Printf("\n  ")
+			} else {
+				fmt.Printf("%*s", 1+maxWidth[i%5]-len(s), "")
+			}
 		}
 	}
 	fmt.Printf("\n]\n")
@@ -78,8 +80,8 @@ func FilterVersionsByConstraints(inputVersions []*semver.Version, constraints []
 	return outputVersions
 }
 
-func FilterHasVersionsByConstraints(id string, inputVersions []HasVersion, constraints []Constraint, dependencies []Dependency) []HasVersion {
-	constraintsToDependencies := make(map[Constraint]DependencyArray)
+func FilterUpstreamVersionsByConstraints(id string, upstreamVersions HasVersionArray, constraints []Constraint, dependencies HasVersionArray) HasVersionArray {
+	constraintsToDependencies := make(map[Constraint][]HasVersion)
 
 	for _, dependency := range dependencies {
 		for _, constraint := range constraints {
@@ -91,7 +93,7 @@ func FilterHasVersionsByConstraints(id string, inputVersions []HasVersion, const
 
 	constraintsToInputVersion := make(map[Constraint][]HasVersion)
 
-	for _, version := range inputVersions {
+	for _, version := range upstreamVersions {
 		for _, constraint := range constraints {
 			if constraint.Check(version) {
 				constraintsToInputVersion[constraint] = append(constraintsToInputVersion[constraint], version)
@@ -106,17 +108,17 @@ func FilterHasVersionsByConstraints(id string, inputVersions []HasVersion, const
 
 	constraintsToOutputVersions := make(map[Constraint][]HasVersion)
 
-	for constraint, inputVersionsForConstraint := range constraintsToInputVersion {
+	for constraint, upstreamVersionsForConstraint := range constraintsToInputVersion {
 		existingDependencies := constraintsToDependencies[constraint]
 
 	ConstraintsToInputVersionLoop:
-		for _, inputVersionForConstraint := range inputVersionsForConstraint {
+		for _, upstreamVersionForConstraint := range upstreamVersionsForConstraint {
 			for _, existingDependency := range existingDependencies {
-				if inputVersionForConstraint.GetVersion().LessThan(existingDependency.GetVersion()) || inputVersionForConstraint.GetVersion().Equal(existingDependency.GetVersion()) {
+				if upstreamVersionForConstraint.GetVersion().LessThan(existingDependency.GetVersion()) || upstreamVersionForConstraint.GetVersion().Equal(existingDependency.GetVersion()) {
 					continue ConstraintsToInputVersionLoop
 				}
 			}
-			constraintsToOutputVersions[constraint] = append(constraintsToOutputVersions[constraint], inputVersionForConstraint)
+			constraintsToOutputVersions[constraint] = append(constraintsToOutputVersions[constraint], upstreamVersionForConstraint)
 		}
 	}
 
@@ -131,7 +133,7 @@ func FilterHasVersionsByConstraints(id string, inputVersions []HasVersion, const
 			constraintsToOutputVersion = constraintsToOutputVersion[len(constraintsToOutputVersion)-constraint.Patches:]
 		}
 
-		constraintDescription := fmt.Sprintf("for constraint %s, after limiting for patches", constraint.Constraint.String())
+		constraintDescription := fmt.Sprintf("for constraint %s, after limiting for %d patches", constraint.Constraint.String(), constraint.Patches)
 		LogAllVersions(id, constraintDescription, constraintsToOutputVersion)
 
 		outputVersions = append(outputVersions, constraintsToOutputVersion...)
@@ -139,13 +141,13 @@ func FilterHasVersionsByConstraints(id string, inputVersions []HasVersion, const
 
 	if len(constraints) < 1 {
 	ZeroConstraintsLoop:
-		for _, inputVersion := range inputVersions {
+		for _, upstreamVersion := range upstreamVersions {
 			for _, dependency := range dependencies {
-				if inputVersion.GetVersion().LessThan(dependency.GetVersion()) || inputVersion.GetVersion().Equal(dependency.GetVersion()) {
+				if upstreamVersion.GetVersion().LessThan(dependency.GetVersion()) || upstreamVersion.GetVersion().Equal(dependency.GetVersion()) {
 					continue ZeroConstraintsLoop
 				}
 			}
-			outputVersions = append(outputVersions, inputVersion)
+			outputVersions = append(outputVersions, upstreamVersion)
 		}
 	}
 

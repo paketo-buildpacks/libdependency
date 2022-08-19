@@ -10,6 +10,12 @@ type SimpleHasVersion struct {
 	version *semver.Version
 }
 
+type HasVersionArray []HasVersion
+
+func (array HasVersionArray) GetVersionStrings() []string {
+	return HasVersionToString(array)
+}
+
 func NewSimpleHasVersion(version *semver.Version) SimpleHasVersion {
 	return SimpleHasVersion{
 		version: version,
