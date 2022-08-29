@@ -5,6 +5,7 @@ import (
 	"github.com/joshuatcasey/libdependency/versionology"
 )
 
+//nolint:govet
 func ExampleUnitLogAllVersions() {
 	versionology.LogAllVersions("dep-id", "description", []versionology.HasVersion{
 		versionology.NewSimpleHasVersion(semver.MustParse("888.777.666")),

@@ -38,6 +38,9 @@ func GetNewMetadata(f GetNewMetadataFunc) {
 	}
 
 	versions, err := f(id, name, config)
+	if err != nil {
+		panic(err)
+	}
 
 	json, err := workflows.ToWorkflowJson(versions)
 	if err != nil {

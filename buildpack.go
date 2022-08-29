@@ -95,6 +95,9 @@ func GetNewVersionsForId(id string, config cargo.Config, hasAllVersionsFunc HasV
 	}
 
 	constraints, err := GetConstraintsById(id, config)
+	if err != nil { //untested
+		return empty, err
+	}
 
 	return versionology.FilterUpstreamVersionsByConstraints(id, allVersions, constraints, hasVersionDependencies), nil
 }
