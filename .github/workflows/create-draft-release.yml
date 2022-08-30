@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+    - v*
   repository_dispatch:
     types: [ version-bump ]
   workflow_dispatch:

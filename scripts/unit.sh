@@ -46,7 +46,7 @@ USAGE
 }
 
 function unit::run() {
-  util::print::title "Run Buildpack Unit Tests"
+  util::print::title "Run Buildpack Unit and Example Tests"
 
   testout=$(mktemp)
   pushd "${BUILDPACKDIR}" > /dev/null

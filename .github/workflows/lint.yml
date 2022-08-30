@@ -4,9 +4,11 @@ on:
   push:
     branches:
     - main
+    - v*
   pull_request:
     branches:
     - main
+    - v*
 
 jobs:
   golangci:
@@ -24,5 +26,5 @@ jobs:
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v3
       with:
-        version: v1.45.2
+        version: latest
         args: --timeout 3m0s
