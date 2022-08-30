@@ -1,4 +1,4 @@
-package metadata
+package retrieve
 
 import (
 	"fmt"

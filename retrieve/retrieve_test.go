@@ -1,4 +1,4 @@
-package metadata_test
+package retrieve_test
 
 import (
 	"os"
@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	"github.com/joshuatcasey/libdependency/matchers"
-	"github.com/joshuatcasey/libdependency/metadata"
+	"github.com/joshuatcasey/libdependency/retrieve"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"
 )
 
-func testMetadata(t *testing.T, context spec.G, it spec.S) {
+func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 	Expect := NewWithT(t).Expect
 
 	var (
@@ -36,9 +36,9 @@ func testMetadata(t *testing.T, context spec.G, it spec.S) {
 			"--output-file", outputFile}
 	})
 
-	context("Metadata", func() {
+	context("RetrieveNewMetadata", func() {
 		it("will write the output to the given location", func() {
-			getNewMetadata := func(id, name string, config cargo.Config) ([]cargo.ConfigMetadataDependency, error) {
+			retrieveNewMetadata := func(id, name string, config cargo.Config) ([]cargo.ConfigMetadataDependency, error) {
 				Expect(id).To(Equal("depId"))
 				Expect(name).To(Equal("depName"))
 
@@ -52,7 +52,7 @@ func testMetadata(t *testing.T, context spec.G, it spec.S) {
 				}, nil
 			}
 
-			metadata.GetNewMetadata(getNewMetadata)
+			retrieve.NewMetadata(retrieveNewMetadata)
 			Expect(outputFile).To(matchers.BeAFileWithContents(`[{"version":"1.1.1"},{"version":"2.2.2"}]`))
 		})
 	})

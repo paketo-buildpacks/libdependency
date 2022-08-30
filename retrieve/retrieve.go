@@ -1,4 +1,4 @@
-package metadata
+package retrieve
 
 import (
 	"flag"
@@ -10,9 +10,9 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 )
 
-type GetNewMetadataFunc func(id, name string, config cargo.Config) ([]cargo.ConfigMetadataDependency, error)
+type NewMetadataFunc func(id, name string, config cargo.Config) ([]cargo.ConfigMetadataDependency, error)
 
-func GetNewMetadata(f GetNewMetadataFunc) {
+func NewMetadata(f NewMetadataFunc) {
 	var (
 		buildpackTomlPath      string
 		outputFile             string
@@ -37,12 +37,12 @@ func GetNewMetadata(f GetNewMetadataFunc) {
 		panic(err)
 	}
 
-	versions, err := f(id, name, config)
+	dependencies, err := f(id, name, config)
 	if err != nil {
 		panic(err)
 	}
 
-	json, err := workflows.ToWorkflowJson(versions)
+	json, err := workflows.ToWorkflowJson(dependencies)
 	if err != nil {
 		panic(fmt.Errorf("unable to marshall json, with error=%w", err))
 	}
