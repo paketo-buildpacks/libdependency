@@ -19,12 +19,14 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 	Expect := NewWithT(t).Expect
 
 	var (
-		savedArgs  []string
-		outputFile string
+		savedArgs    []string
+		metadataFile string
+		targetsFile  string
 	)
 
 	it.Before(func() {
-		outputFile = filepath.Join(t.TempDir(), "temp.json")
+		metadataFile = filepath.Join(t.TempDir(), "metadata.json")
+		targetsFile = filepath.Join(t.TempDir(), "targets.json")
 
 		savedArgs = os.Args
 		t.Cleanup(func() {
@@ -33,7 +35,8 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 
 		os.Args = []string{"/path/to-binary",
 			"--buildpack-toml-path", filepath.Join("..", "testdata", "empty", "buildpack.toml"),
-			"--output-file", outputFile}
+			"--metadata-file", metadataFile,
+			"--targets-file", targetsFile}
 	})
 
 	context("RetrieveNewMetadata", func() {
@@ -51,8 +54,9 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 				}, nil
 			}
 
-			retrieve.NewMetadata("id", getNewVersions, generateMetadata)
-			Expect(outputFile).To(matchers.BeAFileWithContents(`[{"version":"2.2.2"},{"version":"1.1.1"}]`))
+			retrieve.NewMetadata("id", getNewVersions, generateMetadata, "other", "bionic", "jammy")
+			Expect(metadataFile).To(matchers.BeAFileWithContents(`[{"version":"2.2.2"},{"version":"1.1.1"}]`))
+			Expect(targetsFile).To(matchers.BeAFileWithContents(`["bionic","jammy","other"]`))
 		})
 	})
 }
