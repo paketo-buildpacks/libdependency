@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joshuatcasey/collections"
 	"github.com/joshuatcasey/libdependency"
+	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/joshuatcasey/libdependency/workflows"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
+	"github.com/paketo-buildpacks/packit/v2/fs"
 )
 
-type NewMetadataFunc func(id, name string, config cargo.Config) ([]cargo.ConfigMetadataDependency, error)
+type GenerateMetadataFunc func(id, name string, version versionology.HasVersion) (cargo.ConfigMetadataDependency, error)
 
-func NewMetadata(f NewMetadataFunc) {
+func NewMetadata(getNewVersions libdependency.HasVersionsFunc, generateMetadata GenerateMetadataFunc) {
 	var (
 		buildpackTomlPath      string
 		outputFile             string
@@ -32,12 +35,23 @@ func NewMetadata(f NewMetadataFunc) {
 	flag.StringVar(&name, "name", "", "name of the dependency")
 	flag.Parse()
 
+	validate(buildpackTomlPath, outputFile, id, name)
+
 	config, err := libdependency.ParseBuildpackToml(buildpackTomlPath)
 	if err != nil {
 		panic(err)
 	}
 
-	dependencies, err := f(id, name, config)
+	newVersions, err := libdependency.GetNewVersionsForId(id, config, getNewVersions)
+	if err != nil {
+		panic(err)
+	}
+
+	dependencies, err := collections.TransformFuncWithError(newVersions,
+		func(hasVersion versionology.HasVersion) (cargo.ConfigMetadataDependency, error) {
+			fmt.Printf("Generating metadata for %s\n", hasVersion.GetVersion().String())
+			return generateMetadata(id, name, hasVersion)
+		})
 	if err != nil {
 		panic(err)
 	}
@@ -47,8 +61,29 @@ func NewMetadata(f NewMetadataFunc) {
 		panic(fmt.Errorf("unable to marshall json, with error=%w", err))
 	}
 
-	err = os.WriteFile(outputFile, []byte(json), os.ModePerm)
-	if err != nil {
+	if err = os.WriteFile(outputFile, []byte(json), os.ModePerm); err != nil {
 		panic(fmt.Errorf("cannot write to %s: %w", outputFile, err))
+	} else {
+		fmt.Printf("Wrote output to %s\n", outputFile)
+	}
+}
+
+func validate(buildpackTomlPath, outputFile, id, name string) {
+	if exists, err := fs.Exists(buildpackTomlPath); err != nil {
+		panic(err)
+	} else if !exists {
+		panic(fmt.Errorf("could not locate buildpack.toml at '%s'", buildpackTomlPath))
+	}
+
+	if outputFile == "" {
+		panic("outputFile is required")
+	}
+
+	if id == "" {
+		panic("id is required")
+	}
+
+	if name == "" {
+		panic("name is required")
 	}
 }

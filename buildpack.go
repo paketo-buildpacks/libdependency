@@ -74,10 +74,10 @@ type AllVersionsFunc func() ([]*semver.Version, error)
 
 type HasVersionsFunc func() ([]versionology.HasVersion, error)
 
-func GetNewVersionsForId(id string, config cargo.Config, hasAllVersionsFunc HasVersionsFunc) ([]versionology.HasVersion, error) {
+func GetNewVersionsForId(id string, config cargo.Config, getAllVersions HasVersionsFunc) ([]versionology.HasVersion, error) {
 	empty := make([]versionology.HasVersion, 0)
 
-	allVersions, err := hasAllVersionsFunc()
+	allVersions, err := getAllVersions()
 	if err != nil {
 		return empty, err
 	}
@@ -137,7 +137,7 @@ func PruneConfig(config cargo.Config) cargo.Config {
 
 	constraintToPatches := make(map[cargo.ConfigMetadataDependencyConstraint][]string)
 
-	// We can have more than one dependency with the same version
+	// We can have more than one dependency with the same version,
 	// so we have to figure out which versions are captured in the patches
 	for constraint, dependencies := range constraintToDependencies {
 		for _, dependency := range dependencies {
