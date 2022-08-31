@@ -13,14 +13,12 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/fs"
 )
 
-type GenerateMetadataFunc func(id, name string, version versionology.HasVersion) (cargo.ConfigMetadataDependency, error)
+type GenerateMetadataFunc func(version versionology.HasVersion) (cargo.ConfigMetadataDependency, error)
 
-func NewMetadata(getNewVersions libdependency.HasVersionsFunc, generateMetadata GenerateMetadataFunc) {
+func NewMetadata(id string, getNewVersions libdependency.HasVersionsFunc, generateMetadata GenerateMetadataFunc) {
 	var (
 		buildpackTomlPath      string
 		outputFile             string
-		id                     string
-		name                   string
 		buildpackTomlPathUsage = "full path to the buildpack.toml file, using only one of camelCase, snake_case, or dash_case"
 		outputFileUsage        = "output filename into which to write the JSON metadata, using only one of camelCase, snake_case, or dash_case"
 	)
@@ -31,11 +29,9 @@ func NewMetadata(getNewVersions libdependency.HasVersionsFunc, generateMetadata 
 	flag.StringVar(&outputFile, "outputFile", "", outputFileUsage)
 	flag.StringVar(&outputFile, "output_file", outputFile, outputFileUsage)
 	flag.StringVar(&outputFile, "output-file", outputFile, outputFileUsage)
-	flag.StringVar(&id, "id", "", "id of the dependency")
-	flag.StringVar(&name, "name", "", "name of the dependency")
 	flag.Parse()
 
-	validate(buildpackTomlPath, outputFile, id, name)
+	validate(buildpackTomlPath, outputFile)
 
 	config, err := libdependency.ParseBuildpackToml(buildpackTomlPath)
 	if err != nil {
@@ -50,7 +46,7 @@ func NewMetadata(getNewVersions libdependency.HasVersionsFunc, generateMetadata 
 	dependencies, err := collections.TransformFuncWithError(newVersions,
 		func(hasVersion versionology.HasVersion) (cargo.ConfigMetadataDependency, error) {
 			fmt.Printf("Generating metadata for %s\n", hasVersion.GetVersion().String())
-			return generateMetadata(id, name, hasVersion)
+			return generateMetadata(hasVersion)
 		})
 	if err != nil {
 		panic(err)
@@ -68,7 +64,7 @@ func NewMetadata(getNewVersions libdependency.HasVersionsFunc, generateMetadata 
 	}
 }
 
-func validate(buildpackTomlPath, outputFile, id, name string) {
+func validate(buildpackTomlPath, outputFile string) {
 	if exists, err := fs.Exists(buildpackTomlPath); err != nil {
 		panic(err)
 	} else if !exists {
@@ -77,13 +73,5 @@ func validate(buildpackTomlPath, outputFile, id, name string) {
 
 	if outputFile == "" {
 		panic("outputFile is required")
-	}
-
-	if id == "" {
-		panic("id is required")
-	}
-
-	if name == "" {
-		panic("name is required")
 	}
 }

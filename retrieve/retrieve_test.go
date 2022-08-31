@@ -5,8 +5,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/libdependency/matchers"
 	"github.com/joshuatcasey/libdependency/retrieve"
+	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/sclevine/spec"
 
@@ -31,29 +33,26 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 
 		os.Args = []string{"/path/to-binary",
 			"--buildpack-toml-path", filepath.Join("..", "testdata", "empty", "buildpack.toml"),
-			"--id", "depId",
-			"--name", "depName",
 			"--output-file", outputFile}
 	})
 
 	context("RetrieveNewMetadata", func() {
 		it("will write the output to the given location", func() {
-			retrieveNewMetadata := func(id, name string, config cargo.Config) ([]cargo.ConfigMetadataDependency, error) {
-				Expect(id).To(Equal("depId"))
-				Expect(name).To(Equal("depName"))
-
-				return []cargo.ConfigMetadataDependency{
-					{
-						Version: "1.1.1",
-					},
-					{
-						Version: "2.2.2",
-					},
+			getNewVersions := func() ([]versionology.HasVersion, error) {
+				return []versionology.HasVersion{
+					versionology.NewSimpleHasVersion(semver.MustParse("1.1.1")),
+					versionology.NewSimpleHasVersion(semver.MustParse("2.2.2")),
 				}, nil
 			}
 
-			retrieve.NewMetadata(retrieveNewMetadata)
-			Expect(outputFile).To(matchers.BeAFileWithContents(`[{"version":"1.1.1"},{"version":"2.2.2"}]`))
+			generateMetadata := func(version versionology.HasVersion) (cargo.ConfigMetadataDependency, error) {
+				return cargo.ConfigMetadataDependency{
+					Version: version.GetVersion().String(),
+				}, nil
+			}
+
+			retrieve.NewMetadata("id", getNewVersions, generateMetadata)
+			Expect(outputFile).To(matchers.BeAFileWithContents(`[{"version":"2.2.2"},{"version":"1.1.1"}]`))
 		})
 	})
 }
