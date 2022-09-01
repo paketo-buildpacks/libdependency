@@ -63,12 +63,6 @@ jobs:
           tag="${{ steps.semver.outputs.tag }}"
         fi
         echo "::set-output name=tag::${tag}"
-    - name: Create Release Notes
-      id: create-release-notes
-      uses: ./.github/actions/release/notes
-      with:
-        repo: ${{ github.repository }}
-        token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}
     - name: Create Release
       uses: paketo-buildpacks/github-config/actions/release/create@main
       with:
@@ -77,7 +71,6 @@ jobs:
         tag_name: v${{ steps.tag.outputs.tag }}
         target_commitish: ${{ github.sha }}
         name: v${{ steps.tag.outputs.tag }}
-        body: ${{ steps.create-release-notes.outputs.release_body }}
         draft: true
 
   failure:
