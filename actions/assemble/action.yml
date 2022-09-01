@@ -1,0 +1,51 @@
+name: 'Assemble a Dependency Pull Request'
+
+description: |
+  Assemble a Dependency Pull Request
+
+inputs:
+  id:
+    description: 'id of the dependency'
+    required: true
+  buildpack-toml-path:
+    description: 'full path to the buildpack.toml file'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup go 1.19
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: Setup artifact path
+      id: artifact-path
+      shell: bash
+      run: |
+        echo "::set-output name=artifact-path::$(mktemp -d)"
+
+    - name: Get all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ${{ steps.artifact-path.outputs.artifact-path }}
+
+    - name: List everything
+      working-directory: ${{ steps.artifact-path.outputs.artifact-path }}
+      shell: bash
+      run: ls -lsaRth
+
+    - name: Run assemble
+      working-directory: ${{ github.action_path }}/assemble
+      shell: bash
+      run: |
+
+        echo "artifact-path=${{ steps.artifact-path.outputs.artifact-path }}"
+        echo "buildpack-toml-path=${{ inputs.buildpack-toml-path }}"
+
+        go build -o assemble
+        ./assemble \
+          --id=${{ inputs.id }} \
+          --artifact-path=${{ steps.artifact-path.outputs.artifact-path }} \
+          --buildpack-toml-path=${{ inputs.buildpack-toml-path }}
+        rm assemble
