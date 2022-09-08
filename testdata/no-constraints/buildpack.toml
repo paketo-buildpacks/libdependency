@@ -1,0 +1,5 @@
+[metadata]
+  [[metadata.dependencies]]
+    id = "dep1"
+    stacks = ["stack1"]
+    version = "2.0.0"

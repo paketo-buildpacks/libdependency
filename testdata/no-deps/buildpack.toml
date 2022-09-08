@@ -1,0 +1,4 @@
+[[metadata.dependency-constraints]]
+  constraint = "1.1.*"
+  id = "dep"
+  patches = 2
