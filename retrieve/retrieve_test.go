@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/paketo-buildpacks/libdependency/matchers"
-	"github.com/paketo-buildpacks/libdependency/retrieve"
-	"github.com/paketo-buildpacks/libdependency/versionology"
+	"github.com/joshuatcasey/libdependency/matchers"
+	"github.com/joshuatcasey/libdependency/retrieve"
+	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/sclevine/spec"
 
@@ -41,8 +41,8 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 
 	context("RetrieveNewMetadata", func() {
 		it("will write the output to the given location", func() {
-			getNewVersions := func() ([]versionology.HasVersion, error) {
-				return []versionology.HasVersion{
+			getNewVersions := func() (versionology.HasVersionArray, error) {
+				return versionology.HasVersionArray{
 					versionology.NewSimpleHasVersion(semver.MustParse("1.1.1")),
 					versionology.NewSimpleHasVersion(semver.MustParse("2.2.2")),
 				}, nil
@@ -50,7 +50,7 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 
 			generateMetadata := func(version versionology.HasVersion) (cargo.ConfigMetadataDependency, error) {
 				return cargo.ConfigMetadataDependency{
-					Version: version.GetVersion().String(),
+					Version: version.Version().String(),
 				}, nil
 			}
 

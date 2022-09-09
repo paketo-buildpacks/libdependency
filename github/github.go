@@ -9,7 +9,9 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/paketo-buildpacks/libdependency"
+	"github.com/joshuatcasey/collections"
+	"github.com/joshuatcasey/libdependency"
+	"github.com/joshuatcasey/libdependency/versionology"
 )
 
 type GithubReleaseNamesDTO struct {
@@ -26,15 +28,15 @@ func SanitizeGithubReleaseName(release GithubReleaseNamesDTO) (*semver.Version, 
 	}
 }
 
-func GithubAllVersions(githubToken, org, repo string) libdependency.AllVersionsFunc {
-	return func() ([]*semver.Version, error) {
+func GithubAllVersions(githubToken, org, repo string) libdependency.HasVersionsFunc {
+	return func() (versionology.HasVersionArray, error) {
 		return getReleasesFromGithub(githubToken, org, repo)
 	}
 }
 
 // GetReleasesFromGithub will return all semver-compatible versions from the releases of the given repo
 // as documented by https://docs.github.com/en/rest/releases/releases#list-releases
-func getReleasesFromGithub(githubToken, org, repo string) ([]*semver.Version, error) {
+func getReleasesFromGithub(githubToken, org, repo string) (versionology.HasVersionArray, error) {
 	client := &http.Client{}
 
 	perPage := 100
@@ -92,5 +94,7 @@ func getReleasesFromGithub(githubToken, org, repo string) ([]*semver.Version, er
 		return allVersions[i].GreaterThan(allVersions[j])
 	})
 
-	return allVersions, nil
+	return collections.TransformFunc(allVersions, func(version *semver.Version) versionology.HasVersion {
+		return versionology.NewSimpleHasVersion(version)
+	}), nil
 }

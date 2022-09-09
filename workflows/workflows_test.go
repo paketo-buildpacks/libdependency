@@ -3,7 +3,7 @@ package workflows_test
 import (
 	"testing"
 
-	"github.com/paketo-buildpacks/libdependency/workflows"
+	"github.com/joshuatcasey/libdependency/workflows"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"

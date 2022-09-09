@@ -5,6 +5,8 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 )
 
+// Constraint largely mimics cargo.ConfigMetadataDependencyConstraint but has
+// a semver.Constraints instead of a string
 type Constraint struct {
 	Constraint *semver.Constraints
 	ID         string
@@ -26,5 +28,5 @@ func NewConstraint(c cargo.ConfigMetadataDependencyConstraint) (Constraint, erro
 }
 
 func (c Constraint) Check(hasVersion HasVersion) bool {
-	return c.Constraint.Check(hasVersion.GetVersion())
+	return c.Constraint.Check(hasVersion.Version())
 }

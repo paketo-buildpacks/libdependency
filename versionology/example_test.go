@@ -2,7 +2,7 @@ package versionology_test
 
 import (
 	"github.com/Masterminds/semver/v3"
-	"github.com/paketo-buildpacks/libdependency/versionology"
+	"github.com/joshuatcasey/libdependency/versionology"
 )
 
 func ExampleLogAllVersions() {

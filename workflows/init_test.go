@@ -7,7 +7,7 @@ import (
 	"github.com/sclevine/spec/report"
 )
 
-func TestUnitBundler(t *testing.T) {
+func TestUnitFuncs(t *testing.T) {
 	suite := spec.New("workflows", spec.Report(report.Terminal{}))
 	suite("Workflows", testWorkflows)
 	suite.Run(t)

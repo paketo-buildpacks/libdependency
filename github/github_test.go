@@ -3,6 +3,7 @@ package github_test
 import (
 	"testing"
 
+	. "github.com/joshuatcasey/libdependency/github"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"

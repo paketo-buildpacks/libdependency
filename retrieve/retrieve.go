@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/joshuatcasey/collections"
-	"github.com/paketo-buildpacks/libdependency"
-	"github.com/paketo-buildpacks/libdependency/versionology"
-	"github.com/paketo-buildpacks/libdependency/workflows"
+	"github.com/joshuatcasey/libdependency"
+	"github.com/joshuatcasey/libdependency/versionology"
+	"github.com/joshuatcasey/libdependency/workflows"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/paketo-buildpacks/packit/v2/fs"
 	"golang.org/x/exp/slices"
@@ -16,6 +16,10 @@ import (
 
 type GenerateMetadataFunc func(version versionology.HasVersion) (cargo.ConfigMetadataDependency, error)
 
+// NewMetadata is the entrypoint for a buildpack's retrieval of new versions and the metadata thereof.
+// Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
+// this function will take in the dependency workflow inputs and provide output in the way that the dependency workflow
+// expects (typically JSON files).
 func NewMetadata(id string, getNewVersions libdependency.HasVersionsFunc, generateMetadata GenerateMetadataFunc, targets ...string) {
 	var (
 		buildpackTomlPath      string
@@ -51,7 +55,7 @@ func NewMetadata(id string, getNewVersions libdependency.HasVersionsFunc, genera
 
 	dependencies, err := collections.TransformFuncWithError(newVersions,
 		func(hasVersion versionology.HasVersion) (cargo.ConfigMetadataDependency, error) {
-			fmt.Printf("Generating metadata for %s\n", hasVersion.GetVersion().String())
+			fmt.Printf("Generating metadata for %s\n", hasVersion.Version().String())
 			return generateMetadata(hasVersion)
 		})
 	if err != nil {

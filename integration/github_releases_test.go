@@ -4,16 +4,16 @@ import (
 	"os"
 	"testing"
 
+	"github.com/joshuatcasey/libdependency"
+	"github.com/joshuatcasey/libdependency/github"
 	. "github.com/onsi/gomega"
-	"github.com/paketo-buildpacks/libdependency"
-	"github.com/paketo-buildpacks/libdependency/github"
 	"github.com/sclevine/spec"
 )
 
 func testGithubReleases(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect          = NewWithT(t).Expect
-		allVersionsFunc libdependency.AllVersionsFunc
+		allVersionsFunc libdependency.HasVersionsFunc
 	)
 
 	context("GetReleasesFromGithub", func() {
@@ -28,13 +28,8 @@ func testGithubReleases(t *testing.T, context spec.G, it spec.S) {
 				Expect(err).NotTo(HaveOccurred())
 				Expect(fromGithub).NotTo(BeNil())
 
-				var versionsAsStrings []string
-				for _, version := range fromGithub {
-					versionsAsStrings = append(versionsAsStrings, version.String())
-				}
-
-				Expect(versionsAsStrings).To(ContainElements("18.7.0", "6.11.3"))
-				Expect(len(versionsAsStrings) > 300).To(BeTrue())
+				Expect(fromGithub.GetVersionStrings()).To(ContainElements("18.7.0", "6.11.3"))
+				Expect(len(fromGithub) > 300).To(BeTrue())
 			})
 		})
 	})

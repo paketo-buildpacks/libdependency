@@ -7,7 +7,7 @@ import (
 	"github.com/sclevine/spec/report"
 )
 
-func TestUnitBundler(t *testing.T) {
+func TestUnitFuncs(t *testing.T) {
 	suite := spec.New("github", spec.Report(report.Terminal{}))
 	suite("Github", testGithub)
 	suite.Run(t)

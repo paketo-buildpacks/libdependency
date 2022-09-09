@@ -2,8 +2,10 @@ package versionology
 
 import "github.com/Masterminds/semver/v3"
 
+// HasVersion exists to allow buildpack authors to use a type of their own choosing when passing structs
+// in and out of libdependency APIs.
 type HasVersion interface {
-	GetVersion() *semver.Version
+	Version() *semver.Version
 }
 
 type SimpleHasVersion struct {
@@ -22,6 +24,6 @@ func NewSimpleHasVersion(version *semver.Version) SimpleHasVersion {
 	}
 }
 
-func (s SimpleHasVersion) GetVersion() *semver.Version {
+func (s SimpleHasVersion) Version() *semver.Version {
 	return s.version
 }
