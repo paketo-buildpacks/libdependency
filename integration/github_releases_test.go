@@ -13,7 +13,7 @@ import (
 func testGithubReleases(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect          = NewWithT(t).Expect
-		allVersionsFunc libdependency.HasVersionsFunc
+		allVersionsFunc libdependency.VersionFetcherFunc
 	)
 
 	context("GetReleasesFromGithub", func() {

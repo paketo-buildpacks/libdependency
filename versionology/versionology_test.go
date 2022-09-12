@@ -84,28 +84,28 @@ func testVersionology(t *testing.T, context spec.G, it spec.S) {
 
 	context("FilterUpstreamVersionsByConstraints", func() {
 		it("will return only those upstream versions that match constraints and are newer than existing versions", func() {
-			upstreamVersions := []versionology.HasVersion{
-				versionology.NewSimpleHasVersion(semver.MustParse("6.0.0")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.0.1")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.0.2")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.0.3")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.0.4")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.0.5")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.0.6")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.0")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.1")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.2")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.3")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.4")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.5")),
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.6")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.0")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.1")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.2")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.3")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.4")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.5")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.6")),
+			upstreamVersions := []versionology.VersionFetcher{
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.0")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.1")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.2")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.3")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.4")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.5")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.6")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.0")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.1")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.2")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.3")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.4")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.5")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.6")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.0")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.1")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.2")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.3")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.4")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.5")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.6")),
 			}
 
 			c61, err := semver.NewConstraint("6.1.*")
@@ -122,9 +122,9 @@ func testVersionology(t *testing.T, context spec.G, it spec.S) {
 					Patches:    2,
 				},
 			}
-			dependencies := []versionology.HasVersion{
-				versionology.NewSimpleHasVersion(semver.MustParse("6.1.0")),
-				versionology.NewSimpleHasVersion(semver.MustParse("7.0.4")),
+			dependencies := []versionology.VersionFetcher{
+				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.0")),
+				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.4")),
 			}
 
 			filteredVersions := versionology.FilterUpstreamVersionsByConstraints("dep", upstreamVersions, constraints, dependencies)

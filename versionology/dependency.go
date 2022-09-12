@@ -7,19 +7,21 @@ import (
 )
 
 // Dependency exists as a way to "extend" cargo.ConfigMetadataDependency
-// and also "implement" HasVersion
+// and also "implements" VersionFetcher
 type Dependency struct {
 	cargo.ConfigMetadataDependency
 	version *semver.Version
+	Target  string `json:"target,omitempty"`
 }
 
-func NewDependency(dependency cargo.ConfigMetadataDependency) (Dependency, error) {
+func NewDependency(dependency cargo.ConfigMetadataDependency, target string) (Dependency, error) {
 	if semverVersion, err := semver.NewVersion(dependency.Version); err != nil {
 		return Dependency{}, err
 	} else {
 		return Dependency{
 			ConfigMetadataDependency: dependency,
 			version:                  semverVersion,
+			Target:                   target,
 		}, nil
 	}
 }

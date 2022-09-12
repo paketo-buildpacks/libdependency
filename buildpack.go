@@ -27,26 +27,26 @@ func ParseBuildpackToml(buildpackTomlPath string) (cargo.Config, error) {
 }
 
 // GetDependenciesById will return an array of dependencies with the given id, of a type that "extends"
-// cargo.ConfigMetadataDependency and implements versionology.HasVersion
+// cargo.ConfigMetadataDependency and implements versionology.VersionFetcher
 func GetDependenciesById(id string, config cargo.Config) (versionology.DependencyArray, error) {
 	dependencies := collections.FilterFunc(config.Metadata.Dependencies, func(d cargo.ConfigMetadataDependency) bool {
 		return d.ID == id
 	})
 
 	return collections.TransformFuncWithError(dependencies, func(dependency cargo.ConfigMetadataDependency) (versionology.Dependency, error) {
-		return versionology.NewDependency(dependency)
+		return versionology.NewDependency(dependency, "")
 	})
 }
 
 // GetDependenciesByIdAndStack will return an array of dependencies with the given id and stack,
-// of a type that "extends" cargo.ConfigMetadataDependency and implements versionology.HasVersion
+// of a type that "extends" cargo.ConfigMetadataDependency and implements versionology.VersionFetcher
 func GetDependenciesByIdAndStack(id, stack string, config cargo.Config) (versionology.DependencyArray, error) {
 	dependencies := collections.FilterFunc(config.Metadata.Dependencies, func(d cargo.ConfigMetadataDependency) bool {
 		return d.ID == id && d.HasStack(stack)
 	})
 
 	return collections.TransformFuncWithError(dependencies, func(dependency cargo.ConfigMetadataDependency) (versionology.Dependency, error) {
-		return versionology.NewDependency(dependency)
+		return versionology.NewDependency(dependency, "")
 	})
 }
 
@@ -59,14 +59,14 @@ func GetConstraintsById(id string, config cargo.Config) ([]versionology.Constrai
 	return collections.TransformFuncWithError(constraints, versionology.NewConstraint)
 }
 
-type HasVersionsFunc func() (versionology.HasVersionArray, error)
+type VersionFetcherFunc func() (versionology.VersionFetcherArray, error)
 
 // GetNewVersionsForId will return only those versions with the following properties:
 // - returned by getAllVersions
 // - match constraints
 // - newer than all existing dependencies
-func GetNewVersionsForId(id string, config cargo.Config, getAllVersions HasVersionsFunc) ([]versionology.HasVersion, error) {
-	empty := make([]versionology.HasVersion, 0)
+func GetNewVersionsForId(id string, config cargo.Config, getAllVersions VersionFetcherFunc) ([]versionology.VersionFetcher, error) {
+	empty := make([]versionology.VersionFetcher, 0)
 
 	allVersions, err := getAllVersions()
 	if err != nil {
@@ -80,9 +80,9 @@ func GetNewVersionsForId(id string, config cargo.Config, getAllVersions HasVersi
 		return empty, err
 	}
 
-	hasVersionDependencies := make(versionology.HasVersionArray, len(dependencies))
+	versionFetchers := make(versionology.VersionFetcherArray, len(dependencies))
 	for i := range dependencies {
-		hasVersionDependencies[i] = dependencies[i]
+		versionFetchers[i] = dependencies[i]
 	}
 
 	constraints, err := GetConstraintsById(id, config)
@@ -90,5 +90,5 @@ func GetNewVersionsForId(id string, config cargo.Config, getAllVersions HasVersi
 		return empty, err
 	}
 
-	return versionology.FilterUpstreamVersionsByConstraints(id, allVersions, constraints, hasVersionDependencies), nil
+	return versionology.FilterUpstreamVersionsByConstraints(id, allVersions, constraints, versionFetchers), nil
 }

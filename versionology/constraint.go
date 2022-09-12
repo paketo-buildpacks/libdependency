@@ -27,6 +27,6 @@ func NewConstraint(c cargo.ConfigMetadataDependencyConstraint) (Constraint, erro
 	}, nil
 }
 
-func (c Constraint) Check(hasVersion HasVersion) bool {
-	return c.Constraint.Check(hasVersion.Version())
+func (c Constraint) Check(versionFetcher VersionFetcher) bool {
+	return c.Constraint.Check(versionFetcher.Version())
 }

@@ -19,14 +19,12 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 	Expect := NewWithT(t).Expect
 
 	var (
-		savedArgs    []string
-		metadataFile string
-		targetsFile  string
+		savedArgs []string
+		output    string
 	)
 
 	it.Before(func() {
-		metadataFile = filepath.Join(t.TempDir(), "metadata.json")
-		targetsFile = filepath.Join(t.TempDir(), "targets.json")
+		output = filepath.Join(t.TempDir(), "metadata.json")
 
 		savedArgs = os.Args
 		t.Cleanup(func() {
@@ -35,28 +33,27 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 
 		os.Args = []string{"/path/to-binary",
 			"--buildpack-toml-path", filepath.Join("..", "testdata", "empty", "buildpack.toml"),
-			"--metadata-file", metadataFile,
-			"--targets-file", targetsFile}
+			"--output", output}
 	})
 
 	context("RetrieveNewMetadata", func() {
 		it("will write the output to the given location", func() {
-			getNewVersions := func() (versionology.HasVersionArray, error) {
-				return versionology.HasVersionArray{
-					versionology.NewSimpleHasVersion(semver.MustParse("1.1.1")),
-					versionology.NewSimpleHasVersion(semver.MustParse("2.2.2")),
+			getNewVersions := func() (versionology.VersionFetcherArray, error) {
+				return versionology.VersionFetcherArray{
+					versionology.NewSimpleVersionFetcher(semver.MustParse("1.1.1")),
+					versionology.NewSimpleVersionFetcher(semver.MustParse("2.2.2")),
 				}, nil
 			}
 
-			generateMetadata := func(version versionology.HasVersion) (cargo.ConfigMetadataDependency, error) {
-				return cargo.ConfigMetadataDependency{
+			generateMetadata := func(version versionology.VersionFetcher) (versionology.Dependency, error) {
+				return versionology.NewDependency(cargo.ConfigMetadataDependency{
 					Version: version.Version().String(),
-				}, nil
+				}, "target0")
 			}
 
-			retrieve.NewMetadata("id", getNewVersions, generateMetadata, "other", "bionic", "jammy")
-			Expect(metadataFile).To(matchers.BeAFileWithContents(`[{"version":"2.2.2"},{"version":"1.1.1"}]`))
-			Expect(targetsFile).To(matchers.BeAFileWithContents(`["bionic","jammy","other"]`))
+			retrieve.NewMetadata("id", getNewVersions, generateMetadata)
+			Expect(output).To(matchers.BeAFileWithContents(
+				`[{"version":"2.2.2","target":"target0"},{"version":"1.1.1","target":"target0"}]`))
 		})
 	})
 }

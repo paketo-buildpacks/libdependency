@@ -9,39 +9,29 @@ import (
 	"github.com/joshuatcasey/libdependency"
 	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/joshuatcasey/libdependency/workflows"
-	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/paketo-buildpacks/packit/v2/fs"
-	"golang.org/x/exp/slices"
 )
 
-type GenerateMetadataFunc func(version versionology.HasVersion) (cargo.ConfigMetadataDependency, error)
+type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionology.Dependency, error)
 
 // NewMetadata is the entrypoint for a buildpack's retrieval of new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
 // this function will take in the dependency workflow inputs and provide output in the way that the dependency workflow
 // expects (typically JSON files).
-func NewMetadata(id string, getNewVersions libdependency.HasVersionsFunc, generateMetadata GenerateMetadataFunc, targets ...string) {
+func NewMetadata(id string, getNewVersions libdependency.VersionFetcherFunc, generateMetadata GenerateMetadataFunc) {
 	var (
 		buildpackTomlPath      string
-		metadataFile           string
-		targetsFile            string
+		output                 string
 		buildpackTomlPathUsage = "full path to the buildpack.toml file, using only one of camelCase, snake_case, or dash_case"
-		metadataFileUsage      = "output filename into which to write the JSON metadata, using only one of camelCase, snake_case, or dash_case"
-		targetsFileUsage       = `output filename into which to write a JSON array of targets (e.g. ["bionic","jammy"])`
 	)
 
 	flag.StringVar(&buildpackTomlPath, "buildpackTomlPath", "", buildpackTomlPathUsage)
 	flag.StringVar(&buildpackTomlPath, "buildpack_toml_path", buildpackTomlPath, buildpackTomlPathUsage)
 	flag.StringVar(&buildpackTomlPath, "buildpack-toml-path", buildpackTomlPath, buildpackTomlPathUsage)
-	flag.StringVar(&metadataFile, "metadataFile", "", metadataFileUsage)
-	flag.StringVar(&metadataFile, "metadata_file", metadataFile, metadataFileUsage)
-	flag.StringVar(&metadataFile, "metadata-file", metadataFile, metadataFileUsage)
-	flag.StringVar(&targetsFile, "targetsFile", "", targetsFileUsage)
-	flag.StringVar(&targetsFile, "targets_file", targetsFile, targetsFileUsage)
-	flag.StringVar(&targetsFile, "targets-file", targetsFile, targetsFileUsage)
+	flag.StringVar(&output, "output", "", "filename for the output JSON metadata")
 	flag.Parse()
 
-	validate(buildpackTomlPath, metadataFile, targetsFile)
+	validate(buildpackTomlPath, output)
 
 	config, err := libdependency.ParseBuildpackToml(buildpackTomlPath)
 	if err != nil {
@@ -54,7 +44,7 @@ func NewMetadata(id string, getNewVersions libdependency.HasVersionsFunc, genera
 	}
 
 	dependencies, err := collections.TransformFuncWithError(newVersions,
-		func(hasVersion versionology.HasVersion) (cargo.ConfigMetadataDependency, error) {
+		func(hasVersion versionology.VersionFetcher) (versionology.Dependency, error) {
 			fmt.Printf("Generating metadata for %s\n", hasVersion.Version().String())
 			return generateMetadata(hasVersion)
 		})
@@ -67,26 +57,14 @@ func NewMetadata(id string, getNewVersions libdependency.HasVersionsFunc, genera
 		panic(fmt.Errorf("unable to marshall metadata json, with error=%w", err))
 	}
 
-	if err = os.WriteFile(metadataFile, []byte(metadataJson), os.ModePerm); err != nil {
-		panic(fmt.Errorf("cannot write to %s: %w", metadataFile, err))
+	if err = os.WriteFile(output, []byte(metadataJson), os.ModePerm); err != nil {
+		panic(fmt.Errorf("cannot write to %s: %w", output, err))
 	} else {
-		fmt.Printf("Wrote metadata to %s\n", metadataFile)
-	}
-
-	slices.Sort(targets)
-	targetsJson, err := workflows.ToWorkflowJson(targets)
-	if err != nil {
-		panic(fmt.Errorf("unable to marshall targets json, with error=%w", err))
-	}
-
-	if err = os.WriteFile(targetsFile, []byte(targetsJson), os.ModePerm); err != nil {
-		panic(fmt.Errorf("cannot write to %s: %w", targetsFile, err))
-	} else {
-		fmt.Printf("Wrote targets to %s\n", targetsFile)
+		fmt.Printf("Wrote metadata to %s\n", output)
 	}
 }
 
-func validate(buildpackTomlPath, metadataFile, targetsFile string) {
+func validate(buildpackTomlPath, metadataFile string) {
 	if exists, err := fs.Exists(buildpackTomlPath); err != nil {
 		panic(err)
 	} else if !exists {
@@ -95,9 +73,5 @@ func validate(buildpackTomlPath, metadataFile, targetsFile string) {
 
 	if metadataFile == "" {
 		panic("metadataFile is required")
-	}
-
-	if targetsFile == "" {
-		panic("targetsFile is required")
 	}
 }

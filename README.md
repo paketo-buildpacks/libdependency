@@ -9,15 +9,18 @@ It also contains various helpers and actions to assist the overall dependency ma
 ### Retrieval
 
 The retrieve subpackage has an entrypoint func called `NewMetadata` that takes in various information and functions.
+Buildpack authors will need to pass implementations for `VersionFetcherFunc` and `GenerateMetadataFunc` into the
+`NewMetadataFunc`. The job of `NewMetadataFunc` is to read in the workflow inputs, run the provided functions, and provide
+the appropriate outputs to the workflow.
 
 ```go
-type HasVersionsFunc func() ([]versionology.HasVersion, error)
-type GenerateMetadataFunc func(version versionology.HasVersion) (cargo.ConfigMetadataDependency, error)
+type VersionFetcherFunc func() ([]versionology.VersionFetcher, error)
+type GenerateMetadataFunc func(version versionology.VersionFetcher) (cargo.ConfigMetadataDependency, error)
 
-func NewMetadata(id string, getNewVersions HasVersionsFunc, generateMetadata GenerateMetadataFunc, targets ...string)
+func NewMetadata(id string, getNewVersions VersionFetcherFunc, generateMetadata GenerateMetadataFunc, targets ...string)
 ```
 
-The role of `HasVersionsFunc` is to return all known versions from an online source as an array of `versionology.HasVersion`.
+The role of `VersionFetcherFunc` is to return all known versions from an online source as an array of `versionology.VersionFetcher`.
 
 Buildpacks authors can choose the source of these versions. Some examples include:
 

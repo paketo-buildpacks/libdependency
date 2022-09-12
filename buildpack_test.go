@@ -156,21 +156,21 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 			newVersions, err := libdependency.GetNewVersionsForId(
 				"bundler",
 				config,
-				func() (versionology.HasVersionArray, error) {
-					return versionology.HasVersionArray{
-						versionology.NewSimpleHasVersion(semver.MustParse("0.1.1")),
-						versionology.NewSimpleHasVersion(semver.MustParse("1.17.3")),
-						versionology.NewSimpleHasVersion(semver.MustParse("1.17.4")),
-						versionology.NewSimpleHasVersion(semver.MustParse("2.3.16")),
-						versionology.NewSimpleHasVersion(semver.MustParse("2.3.17")),
-						versionology.NewSimpleHasVersion(semver.MustParse("2.4.0")),
-						versionology.NewSimpleHasVersion(semver.MustParse("3.0.0")),
+				func() (versionology.VersionFetcherArray, error) {
+					return versionology.VersionFetcherArray{
+						versionology.NewSimpleVersionFetcher(semver.MustParse("0.1.1")),
+						versionology.NewSimpleVersionFetcher(semver.MustParse("1.17.3")),
+						versionology.NewSimpleVersionFetcher(semver.MustParse("1.17.4")),
+						versionology.NewSimpleVersionFetcher(semver.MustParse("2.3.16")),
+						versionology.NewSimpleVersionFetcher(semver.MustParse("2.3.17")),
+						versionology.NewSimpleVersionFetcher(semver.MustParse("2.4.0")),
+						versionology.NewSimpleVersionFetcher(semver.MustParse("3.0.0")),
 					}, nil
 				},
 			)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(versionology.HasVersionToString(newVersions)).To(ConsistOf("1.17.4", "2.3.17", "2.4.0"))
+			Expect(versionology.VersionFetcherToString(newVersions)).To(ConsistOf("1.17.4", "2.3.17", "2.4.0"))
 		})
 
 		context("when there are more new versions than allowed patches", func() {
@@ -181,20 +181,20 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 				newVersions, err := libdependency.GetNewVersionsForId(
 					"dep",
 					config,
-					func() (versionology.HasVersionArray, error) {
-						return versionology.HasVersionArray{
-							versionology.NewSimpleHasVersion(semver.MustParse("0.1.1")),
-							versionology.NewSimpleHasVersion(semver.MustParse("1.0.0")),
-							versionology.NewSimpleHasVersion(semver.MustParse("1.1.0")),
-							versionology.NewSimpleHasVersion(semver.MustParse("1.1.1")),
-							versionology.NewSimpleHasVersion(semver.MustParse("1.1.2")),
-							versionology.NewSimpleHasVersion(semver.MustParse("1.1.3")),
-							versionology.NewSimpleHasVersion(semver.MustParse("2.0.0")),
+					func() (versionology.VersionFetcherArray, error) {
+						return versionology.VersionFetcherArray{
+							versionology.NewSimpleVersionFetcher(semver.MustParse("0.1.1")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("1.0.0")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("1.1.0")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("1.1.1")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("1.1.2")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("1.1.3")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("2.0.0")),
 						}, nil
 					},
 				)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(versionology.HasVersionToString(newVersions)).To(ConsistOf("1.1.2", "1.1.3"))
+				Expect(versionology.VersionFetcherToString(newVersions)).To(ConsistOf("1.1.2", "1.1.3"))
 			})
 		})
 
@@ -206,16 +206,16 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 				newVersions, err := libdependency.GetNewVersionsForId(
 					"dep1",
 					config,
-					func() (versionology.HasVersionArray, error) {
-						return versionology.HasVersionArray{
-							versionology.NewSimpleHasVersion(semver.MustParse("1.0.0")),
-							versionology.NewSimpleHasVersion(semver.MustParse("2.0.0")),
-							versionology.NewSimpleHasVersion(semver.MustParse("3.0.0")),
+					func() (versionology.VersionFetcherArray, error) {
+						return versionology.VersionFetcherArray{
+							versionology.NewSimpleVersionFetcher(semver.MustParse("1.0.0")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("2.0.0")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("3.0.0")),
 						}, nil
 					},
 				)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(versionology.HasVersionToString(newVersions)).To(ConsistOf("3.0.0"))
+				Expect(versionology.VersionFetcherToString(newVersions)).To(ConsistOf("3.0.0"))
 			})
 		})
 
@@ -227,16 +227,16 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 				newVersions, err := libdependency.GetNewVersionsForId(
 					"id",
 					config,
-					func() (versionology.HasVersionArray, error) {
-						return versionology.HasVersionArray{
-							versionology.NewSimpleHasVersion(semver.MustParse("1.0.0")),
-							versionology.NewSimpleHasVersion(semver.MustParse("2.0.0")),
-							versionology.NewSimpleHasVersion(semver.MustParse("3.0.0")),
+					func() (versionology.VersionFetcherArray, error) {
+						return versionology.VersionFetcherArray{
+							versionology.NewSimpleVersionFetcher(semver.MustParse("1.0.0")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("2.0.0")),
+							versionology.NewSimpleVersionFetcher(semver.MustParse("3.0.0")),
 						}, nil
 					},
 				)
 				Expect(err).NotTo(HaveOccurred())
-				Expect(versionology.HasVersionToString(newVersions)).To(ConsistOf("1.0.0", "2.0.0", "3.0.0"))
+				Expect(versionology.VersionFetcherToString(newVersions)).To(ConsistOf("1.0.0", "2.0.0", "3.0.0"))
 			})
 		})
 
@@ -249,8 +249,8 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 					_, err = libdependency.GetNewVersionsForId(
 						"id",
 						config,
-						func() (versionology.HasVersionArray, error) {
-							return versionology.HasVersionArray{}, errors.New("hi")
+						func() (versionology.VersionFetcherArray, error) {
+							return versionology.VersionFetcherArray{}, errors.New("hi")
 						},
 					)
 					Expect(err).To(MatchError("hi"))
