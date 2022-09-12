@@ -12,12 +12,13 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/fs"
 )
 
+// GenerateMetadataFunc is a function type that buildpack authors will implement and pass in to NewMetadata.
+// Given a versionology.VersionFetcher, the implementation must return the associated metadata for that version
 type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionology.Dependency, error)
 
 // NewMetadata is the entrypoint for a buildpack's retrieval of new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
-// this function will take in the dependency workflow inputs and provide output in the way that the dependency workflow
-// expects (typically JSON files).
+// this function will take in the dependency workflow inputs and the dependency workflow outputs
 func NewMetadata(id string, getNewVersions libdependency.VersionFetcherFunc, generateMetadata GenerateMetadataFunc) {
 	var (
 		buildpackTomlPath      string

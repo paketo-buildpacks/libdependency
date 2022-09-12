@@ -8,7 +8,7 @@ type VersionFetcher interface {
 	Version() *semver.Version
 }
 
-// SimpleVersionFetcher only contains a version and implements VersionFetcher
+// SimpleVersionFetcher only contains a semverVersion and implements VersionFetcher
 type SimpleVersionFetcher struct {
 	version *semver.Version
 }

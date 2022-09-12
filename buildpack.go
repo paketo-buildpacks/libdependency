@@ -28,7 +28,7 @@ func ParseBuildpackToml(buildpackTomlPath string) (cargo.Config, error) {
 
 // GetDependenciesById will return an array of dependencies with the given id, of a type that "extends"
 // cargo.ConfigMetadataDependency and implements versionology.VersionFetcher
-func GetDependenciesById(id string, config cargo.Config) (versionology.DependencyArray, error) {
+func GetDependenciesById(id string, config cargo.Config) ([]versionology.Dependency, error) {
 	dependencies := collections.FilterFunc(config.Metadata.Dependencies, func(d cargo.ConfigMetadataDependency) bool {
 		return d.ID == id
 	})
@@ -40,7 +40,7 @@ func GetDependenciesById(id string, config cargo.Config) (versionology.Dependenc
 
 // GetDependenciesByIdAndStack will return an array of dependencies with the given id and stack,
 // of a type that "extends" cargo.ConfigMetadataDependency and implements versionology.VersionFetcher
-func GetDependenciesByIdAndStack(id, stack string, config cargo.Config) (versionology.DependencyArray, error) {
+func GetDependenciesByIdAndStack(id, stack string, config cargo.Config) ([]versionology.Dependency, error) {
 	dependencies := collections.FilterFunc(config.Metadata.Dependencies, func(d cargo.ConfigMetadataDependency) bool {
 		return d.ID == id && d.HasStack(stack)
 	})

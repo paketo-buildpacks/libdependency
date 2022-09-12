@@ -13,6 +13,7 @@ type Constraint struct {
 	Patches    int
 }
 
+// NewConstraint will translate a cargo.ConfigMetadataDependencyConstraint into a Constraint
 func NewConstraint(c cargo.ConfigMetadataDependencyConstraint) (Constraint, error) {
 	semverConstraint, err := semver.NewConstraint(c.Constraint)
 
@@ -27,6 +28,7 @@ func NewConstraint(c cargo.ConfigMetadataDependencyConstraint) (Constraint, erro
 	}, nil
 }
 
+// Check tests if a version satisfies the constraints.
 func (c Constraint) Check(versionFetcher VersionFetcher) bool {
 	return c.Constraint.Check(versionFetcher.Version())
 }

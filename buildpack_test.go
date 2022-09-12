@@ -60,7 +60,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 			dependencies, err := libdependency.GetDependenciesById("id2", config)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(dependencies.Versions()).To(ConsistOf("2.2.2", "3.3.3", "4.4.4"))
+			Expect(versionology.Versions(dependencies)).To(ConsistOf("2.2.2", "3.3.3", "4.4.4"))
 		})
 
 		context("failure cases", func() {
@@ -99,7 +99,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 			dependencies, err := libdependency.GetDependenciesByIdAndStack("id2", "stack1", config)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(dependencies.Versions()).To(ConsistOf("2.2.2", "4.4.4"))
+			Expect(versionology.Versions(dependencies)).To(ConsistOf("2.2.2", "4.4.4"))
 		})
 
 		context("failure cases", func() {

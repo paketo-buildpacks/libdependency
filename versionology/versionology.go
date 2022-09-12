@@ -4,33 +4,27 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/collections"
 )
 
-// VersionFetcherToString translates from an array of VersionFetcher to an array of strings
+// VersionFetcherToString translates from an array of VersionFetcher to an array of strings.
+// Primarily intended as a test helper.
 func VersionFetcherToString(semverVersions []VersionFetcher) []string {
 	return collections.TransformFunc(semverVersions, func(version VersionFetcher) string {
 		return version.Version().String()
 	})
 }
 
-// SemverToString translates from an array of *semver.Version to an array of strings
-func SemverToString(semverVersions []*semver.Version) []string {
-	return collections.TransformFunc(semverVersions, func(v *semver.Version) string {
-		return v.String()
-	})
-}
-
 // ConstraintsToString translates from an array of Constraints to an array of strings
+// Primarily intended as a test helper.
 func ConstraintsToString(semverVersions []Constraint) []string {
 	return collections.TransformFunc(semverVersions, func(c Constraint) string {
 		return c.Constraint.String()
 	})
 }
 
-// LogAllVersions will print out a JSON array of the versions arranged as a block table
-// See Example tests for demonstration
+// LogAllVersions will print out a JSON array of the versions arranged as a block table.
+// See Example tests for demonstration.
 func LogAllVersions(id, description string, versions []VersionFetcher) {
 	fmt.Printf("Found %d versions of %s %s\n", len(versions), id, description)
 
@@ -67,28 +61,19 @@ func LogAllVersions(id, description string, versions []VersionFetcher) {
 	fmt.Printf("\n]\n")
 }
 
-func FilterVersionsByConstraints(inputVersions []*semver.Version, constraints []*semver.Constraints) []*semver.Version {
-	if len(constraints) == 0 {
-		return inputVersions
-	}
+// FilterUpstreamVersionsByConstraints will return only those versions with the following properties:
+// - contained in upstreamVersions
+// - satisfy at least one constraint
+// - newer than all existing dependencies
+func FilterUpstreamVersionsByConstraints(
+	id string,
+	upstreamVersions VersionFetcherArray,
+	constraints []Constraint,
+	existingVersion VersionFetcherArray) VersionFetcherArray {
 
-	var outputVersions []*semver.Version
-
-	for _, version := range inputVersions {
-		for _, constraint := range constraints {
-			if constraint.Check(version) {
-				outputVersions = append(outputVersions, version)
-			}
-		}
-	}
-
-	return outputVersions
-}
-
-func FilterUpstreamVersionsByConstraints(id string, upstreamVersions VersionFetcherArray, constraints []Constraint, dependencies VersionFetcherArray) VersionFetcherArray {
 	constraintsToDependencies := make(map[Constraint][]VersionFetcher)
 
-	for _, dependency := range dependencies {
+	for _, dependency := range existingVersion {
 		for _, constraint := range constraints {
 			if constraint.Check(dependency) {
 				constraintsToDependencies[constraint] = append(constraintsToDependencies[constraint], dependency)
@@ -147,7 +132,7 @@ func FilterUpstreamVersionsByConstraints(id string, upstreamVersions VersionFetc
 	if len(constraints) < 1 {
 	ZeroConstraintsLoop:
 		for _, upstreamVersion := range upstreamVersions {
-			for _, dependency := range dependencies {
+			for _, dependency := range existingVersion {
 				if upstreamVersion.Version().LessThan(dependency.Version()) || upstreamVersion.Version().Equal(dependency.Version()) {
 					continue ZeroConstraintsLoop
 				}

@@ -10,8 +10,8 @@ import (
 // and also "implements" VersionFetcher
 type Dependency struct {
 	cargo.ConfigMetadataDependency
-	version *semver.Version
-	Target  string `json:"target,omitempty"`
+	SemverVersion *semver.Version `json:"-"`
+	Target        string          `json:"target,omitempty"`
 }
 
 func NewDependency(dependency cargo.ConfigMetadataDependency, target string) (Dependency, error) {
@@ -20,20 +20,20 @@ func NewDependency(dependency cargo.ConfigMetadataDependency, target string) (De
 	} else {
 		return Dependency{
 			ConfigMetadataDependency: dependency,
-			version:                  semverVersion,
+			SemverVersion:            semverVersion,
 			Target:                   target,
 		}, nil
 	}
 }
 
 func (d Dependency) Version() *semver.Version {
-	return d.version
+	return d.SemverVersion
 }
 
-type DependencyArray []Dependency
-
-func (array DependencyArray) Versions() []string {
-	return collections.TransformFunc(array, func(dep Dependency) string {
-		return dep.Version().String()
+// Versions will return an array of strings that represents each version of the input
+// Primarily intended as a test helper.
+func Versions(dependencies []Dependency) []string {
+	return collections.TransformFunc(dependencies, func(dep Dependency) string {
+		return dep.SemverVersion.String()
 	})
 }
