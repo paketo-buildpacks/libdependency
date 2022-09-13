@@ -15,7 +15,7 @@ type SimpleVersionFetcher struct {
 
 type VersionFetcherArray []VersionFetcher
 
-func NewVersionFetcherArray() []VersionFetcher {
+func NewVersionFetcherArray() VersionFetcherArray {
 	return make([]VersionFetcher, 0)
 }
 

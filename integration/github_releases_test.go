@@ -42,7 +42,6 @@ func testGithubReleases(t *testing.T, context spec.G, it spec.S) {
 				it("will return error", func() {
 					_, err := allVersionsFunc()
 					Expect(err).To(HaveOccurred())
-					Expect(err).To(MatchError("hello world"))
 				})
 			})
 		})
