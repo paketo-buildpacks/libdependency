@@ -28,27 +28,28 @@ func SanitizeGithubReleaseName(release GithubReleaseNamesDTO) (*semver.Version, 
 	}
 }
 
-func GithubAllVersions(githubToken, org, repo string) libdependency.VersionFetcherFunc {
+// RetrieveAllVersions will return a libdependency.VersionFetcherFunc that can retrieve all versions for a given
+// GitHub org/repo.
+func RetrieveAllVersions(githubToken, org, repo string) libdependency.VersionFetcherFunc {
 	return func() (versionology.VersionFetcherArray, error) {
 		return getReleasesFromGithub(githubToken, org, repo)
 	}
 }
 
-// GetReleasesFromGithub will return all semver-compatible versions from the releases of the given repo
+// getReleasesFromGithub will return all semver-compatible versions from the releases of the given repo
 // as documented by https://docs.github.com/en/rest/releases/releases#list-releases
 func getReleasesFromGithub(githubToken, org, repo string) (versionology.VersionFetcherArray, error) {
 	client := &http.Client{}
 
 	perPage := 100
-	page := 1
 
-	var allVersions []*semver.Version
+	allVersions := make([]*semver.Version, 0)
 
-	for ; ; page++ {
+	for page := 1; ; page++ {
 		urlString := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases?per_page=%d&page=%d", org, repo, perPage, page)
 		req, err := http.NewRequest("GET", urlString, nil)
 		if err != nil {
-			panic(err)
+			return versionology.NewVersionFetcherArray(), err
 		}
 
 		req.Header.Set("Accept", "application/vnd.github.v3+json")
@@ -58,28 +59,28 @@ func getReleasesFromGithub(githubToken, org, repo string) (versionology.VersionF
 
 		res, err := client.Do(req)
 		if err != nil {
-			panic(err)
+			return versionology.NewVersionFetcherArray(), err
 		}
 
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			panic(err)
+			return versionology.NewVersionFetcherArray(), err
 		}
 
 		err = res.Body.Close()
 		if err != nil {
-			panic(err)
+			return versionology.NewVersionFetcherArray(), err
 		}
 
 		var githubReleaseNames []GithubReleaseNamesDTO
 		err = json.Unmarshal(body, &githubReleaseNames)
 		if err != nil {
-			panic(err)
+			return versionology.NewVersionFetcherArray(), err
 		}
 
 		for _, release := range githubReleaseNames {
 			if version, err := SanitizeGithubReleaseName(release); err != nil {
-				panic(err)
+				return versionology.NewVersionFetcherArray(), err
 			} else {
 				allVersions = append(allVersions, version)
 			}

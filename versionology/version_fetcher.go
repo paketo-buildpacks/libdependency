@@ -15,6 +15,10 @@ type SimpleVersionFetcher struct {
 
 type VersionFetcherArray []VersionFetcher
 
+func NewVersionFetcherArray() []VersionFetcher {
+	return make([]VersionFetcher, 0)
+}
+
 func (array VersionFetcherArray) GetVersionStrings() []string {
 	return VersionFetcherToString(array)
 }

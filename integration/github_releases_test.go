@@ -19,7 +19,7 @@ func testGithubReleases(t *testing.T, context spec.G, it spec.S) {
 	context("GetReleasesFromGithub", func() {
 		context("nodejs/node", func() {
 			it.Before(func() {
-				allVersionsFunc = github.GithubAllVersions(os.Getenv("GIT_TOKEN"), "nodejs", "node")
+				allVersionsFunc = github.RetrieveAllVersions(os.Getenv("GIT_TOKEN"), "nodejs", "node")
 			})
 
 			it("will return a list of github releases", func() {
@@ -30,6 +30,20 @@ func testGithubReleases(t *testing.T, context spec.G, it spec.S) {
 
 				Expect(fromGithub.GetVersionStrings()).To(ContainElements("18.7.0", "6.11.3"))
 				Expect(len(fromGithub) > 300).To(BeTrue())
+			})
+		})
+
+		context("failure cases", func() {
+			context("non-existing org/space", func() {
+				it.Before(func() {
+					allVersionsFunc = github.RetrieveAllVersions(os.Getenv("GIT_TOKEN"), "a612403a", "99b59f037720")
+				})
+
+				it("will return error", func() {
+					_, err := allVersionsFunc()
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(MatchError("hello world"))
+				})
 			})
 		})
 	})
