@@ -6,14 +6,17 @@ import (
 	"github.com/anchore/packageurl-go"
 )
 
-func GeneratePURL(name, version, sourceSHA, source string) string {
+// GeneratePURL can be used to populate the `purl` field of dependency metadata
+// PURL stands for package URL.
+// https://github.com/package-url/purl-spec
+func GeneratePURL(id, version, checksum, source string) string {
 	purl := packageurl.NewPackageURL(
 		packageurl.TypeGeneric,
 		"",
-		name,
+		id,
 		version,
 		packageurl.QualifiersFromMap(map[string]string{
-			"checksum":     sourceSHA,
+			"checksum":     checksum,
 			"download_url": source,
 		}),
 		"",

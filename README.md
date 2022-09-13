@@ -29,3 +29,6 @@ Buildpacks authors can choose the source of these versions. Some examples includ
 
 The role of `GenerateMetadataFunc` is to take in a single version and generate all the associated metadata for it.
 That way `NewMetadata` can assemble the `metadata.json` file containing all new metadata for all new versions.
+
+TODOs:
+- Bring in test cases from `dep-server` for `retrieve/licenses.go` and `retrieve/purl.go`.

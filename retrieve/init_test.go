@@ -10,5 +10,6 @@ import (
 func TestUnitRetrieve(t *testing.T) {
 	suite := spec.New("retrieve", spec.Report(report.Terminal{}))
 	suite("retrieve", testRetrieve)
+	suite("purl", testPurl)
 	suite.Run(t)
 }
