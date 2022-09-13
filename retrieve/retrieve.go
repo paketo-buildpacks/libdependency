@@ -16,7 +16,7 @@ import (
 // Given a versionology.VersionFetcher, the implementation must return the associated metadata for that version
 type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionology.Dependency, error)
 
-// NewMetadata is the entrypoint for a buildpack's retrieval of new versions and the metadata thereof.
+// NewMetadata is the entrypoint for a buildpack to retrieve new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
 // this function will take in the dependency workflow inputs and the dependency workflow outputs
 func NewMetadata(id string, getNewVersions libdependency.VersionFetcherFunc, generateMetadata GenerateMetadataFunc) {
