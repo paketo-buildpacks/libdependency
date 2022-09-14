@@ -1,6 +1,9 @@
 package versionology
 
-import "github.com/Masterminds/semver/v3"
+import (
+	"github.com/Masterminds/semver/v3"
+	"github.com/joshuatcasey/collections"
+)
 
 // VersionFetcher exists to allow buildpack authors to use a type of their own choosing when passing structs
 // in and out of libdependency APIs.
@@ -8,9 +11,13 @@ type VersionFetcher interface {
 	Version() *semver.Version
 }
 
-// SimpleVersionFetcher only contains a semverVersion and implements VersionFetcher
+// SimpleVersionFetcher only contains a Semver Version and implements VersionFetcher
 type SimpleVersionFetcher struct {
 	version *semver.Version
+}
+
+func (s SimpleVersionFetcher) Version() *semver.Version {
+	return s.version
 }
 
 type VersionFetcherArray []VersionFetcher
@@ -29,6 +36,14 @@ func NewSimpleVersionFetcher(version *semver.Version) SimpleVersionFetcher {
 	}
 }
 
-func (s SimpleVersionFetcher) Version() *semver.Version {
-	return s.version
+// NewSimpleVersionFetcherArray will return a VersionFetcherArray containing the semver representation of the input
+func NewSimpleVersionFetcherArray(versions ...string) (VersionFetcherArray, error) {
+	return collections.TransformFuncWithError(versions, func(version string) (VersionFetcher, error) {
+		semverVersion, err := semver.NewVersion(version)
+		if err != nil {
+			return nil, err
+		}
+
+		return NewSimpleVersionFetcher(semverVersion), nil
+	})
 }

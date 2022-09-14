@@ -31,4 +31,6 @@ The role of `GenerateMetadataFunc` is to take in a single version and generate a
 That way `NewMetadata` can assemble the `metadata.json` file containing all new metadata for all new versions.
 
 TODOs:
+- Increase test coverage
 - Bring in test cases from `dep-server` for `retrieve/licenses.go` and `retrieve/purl.go`.
+- Bring in common decompression functions from `dep-server` for extracting licenses

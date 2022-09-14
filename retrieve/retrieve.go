@@ -20,18 +20,7 @@ type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionolog
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
 // this function will take in the dependency workflow inputs and the dependency workflow outputs
 func NewMetadata(id string, getNewVersions libdependency.VersionFetcherFunc, generateMetadata GenerateMetadataFunc) {
-	var (
-		buildpackTomlPath      string
-		output                 string
-		buildpackTomlPathUsage = "full path to the buildpack.toml file, using only one of camelCase, snake_case, or dash_case"
-	)
-
-	flag.StringVar(&buildpackTomlPath, "buildpackTomlPath", "", buildpackTomlPathUsage)
-	flag.StringVar(&buildpackTomlPath, "buildpack_toml_path", buildpackTomlPath, buildpackTomlPathUsage)
-	flag.StringVar(&buildpackTomlPath, "buildpack-toml-path", buildpackTomlPath, buildpackTomlPathUsage)
-	flag.StringVar(&output, "output", "", "filename for the output JSON metadata")
-	flag.Parse()
-
+	buildpackTomlPath, output := FetchArgs()
 	validate(buildpackTomlPath, output)
 
 	config, err := libdependency.ParseBuildpackToml(buildpackTomlPath)
@@ -75,4 +64,18 @@ func validate(buildpackTomlPath, metadataFile string) {
 	if metadataFile == "" {
 		panic("metadataFile is required")
 	}
+}
+
+type FetchArgsFunc func() (string, string)
+
+// FetchArgs is public for testing purposes
+var FetchArgs = func() (buildpackTomlPath, output string) {
+	buildpackTomlPathUsage := "full path to the buildpack.toml file, using only one of camelCase, snake_case, or dash_case"
+
+	flag.StringVar(&buildpackTomlPath, "buildpackTomlPath", "", buildpackTomlPathUsage)
+	flag.StringVar(&buildpackTomlPath, "buildpack_toml_path", buildpackTomlPath, buildpackTomlPathUsage)
+	flag.StringVar(&buildpackTomlPath, "buildpack-toml-path", buildpackTomlPath, buildpackTomlPathUsage)
+	flag.StringVar(&output, "output", "", "filename for the output JSON metadata")
+	flag.Parse()
+	return
 }
