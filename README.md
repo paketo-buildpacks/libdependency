@@ -15,7 +15,7 @@ the appropriate outputs to the workflow.
 
 ```go
 type VersionFetcherFunc func() ([]versionology.VersionFetcher, error)
-type GenerateMetadataFunc func(version versionology.VersionFetcher) (cargo.ConfigMetadataDependency, error)
+type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionology.Dependency, error)
 
 func NewMetadata(id string, getNewVersions VersionFetcherFunc, generateMetadata GenerateMetadataFunc, targets ...string)
 ```
