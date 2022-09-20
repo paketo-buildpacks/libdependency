@@ -6,10 +6,10 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/libdependency"
-	"github.com/joshuatcasey/libdependency/matchers"
 	"github.com/joshuatcasey/libdependency/retrieve"
 	"github.com/joshuatcasey/libdependency/versionology"
 	. "github.com/onsi/gomega"
+	"github.com/paketo-buildpacks/occam/matchers"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/sclevine/spec"
 )
@@ -59,7 +59,11 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 		it("should generate metadata.json in the output dir", func() {
 			retrieve.NewMetadata("fake-dependency-id", getVersions, generateMetadata)
 
-			Expect(output).To(matchers.BeAFileWithContents(`[{"id":"fake-dependency-id","stacks":["jammy-stack","bionic-stack"],"version":"1.5.0","target":"linux-64"},{"id":"fake-dependency-id","stacks":["jammy-stack","bionic-stack"],"version":"1.4.0","target":"linux-64"}]`))
+			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
+[
+	{"id":"fake-dependency-id","stacks":["jammy-stack","bionic-stack"],"version":"1.5.0","target":"linux-64"},
+	{"id":"fake-dependency-id","stacks":["jammy-stack","bionic-stack"],"version":"1.4.0","target":"linux-64"}
+]`)))
 		})
 	})
 
@@ -88,7 +92,11 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 		it("should only generate metadata for the two newest versions", func() {
 			retrieve.NewMetadata("python", getVersions, generateMetadata)
 
-			Expect(output).To(matchers.BeAFileWithContents(`[{"id":"python","stacks":["io.buildpacks.stacks.jammy"],"version":"3.10.10","target":"jammy"},{"id":"python","stacks":["io.buildpacks.stacks.jammy"],"version":"3.10.9","target":"jammy"}]`))
+			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
+[
+	{"id":"python","stacks":["io.buildpacks.stacks.jammy"],"version":"3.10.10","target":"jammy"},
+	{"id":"python","stacks":["io.buildpacks.stacks.jammy"],"version":"3.10.9","target":"jammy"}
+]`)))
 		})
 	})
 
@@ -120,7 +128,12 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 		it("all versions are found in the metadata.json", func() {
 			retrieve.NewMetadata("not a real dependency id", getVersions, generateMetadata)
 
-			Expect(output).To(matchers.BeAFileWithContents(`[{"id":"not a real dependency id","version":"999.888.777","target":"jammy"},{"id":"not a real dependency id","version":"666.555.444","target":"jammy"},{"id":"not a real dependency id","version":"333.222.111","target":"jammy"}]`))
+			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
+[
+	{"id":"not a real dependency id","version":"999.888.777","target":"jammy"},
+	{"id":"not a real dependency id","version":"666.555.444","target":"jammy"},
+	{"id":"not a real dependency id","version":"333.222.111","target":"jammy"}
+]`)))
 		})
 	})
 
