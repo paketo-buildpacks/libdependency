@@ -14,16 +14,25 @@ type Dependency struct {
 	Target        string          `json:"target,omitempty"`
 }
 
-func NewDependency(dependency cargo.ConfigMetadataDependency, target string) (Dependency, error) {
-	if semverVersion, err := semver.NewVersion(dependency.Version); err != nil {
+func NewDependency(configMetadataDependency cargo.ConfigMetadataDependency, target string) (Dependency, error) {
+	if semverVersion, err := semver.NewVersion(configMetadataDependency.Version); err != nil {
 		return Dependency{}, err
 	} else {
 		return Dependency{
-			ConfigMetadataDependency: dependency,
+			ConfigMetadataDependency: configMetadataDependency,
 			SemverVersion:            semverVersion,
 			Target:                   target,
 		}, nil
 	}
+}
+
+func NewDependencyArray(configMetadataDependency cargo.ConfigMetadataDependency, target string) ([]Dependency, error) {
+	dependency, err := NewDependency(configMetadataDependency, target)
+	if err != nil {
+		return []Dependency{}, err
+	}
+
+	return []Dependency{dependency}, nil
 }
 
 func (d Dependency) Version() *semver.Version {

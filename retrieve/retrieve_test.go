@@ -45,14 +45,14 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 				}, nil
 			}
 
-			generateMetadata = func(versionFetcher versionology.VersionFetcher) (versionology.Dependency, error) {
+			generateMetadata = func(versionFetcher versionology.VersionFetcher) ([]versionology.Dependency, error) {
 				dependency := cargo.ConfigMetadataDependency{
 					ID:      "fake-dependency-id",
 					Stacks:  []string{"jammy-stack", "bionic-stack"},
 					Version: versionFetcher.Version().String(),
 				}
 
-				return versionology.NewDependency(dependency, "linux-64")
+				return versionology.NewDependencyArray(dependency, "linux-64")
 			}
 		})
 
@@ -78,14 +78,14 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 				return versionology.NewSimpleVersionFetcherArray("3.10.5", "3.10.6", "3.10.7", "3.10.8", "3.10.9", "3.10.10")
 			}
 
-			generateMetadata = func(versionFetcher versionology.VersionFetcher) (versionology.Dependency, error) {
+			generateMetadata = func(versionFetcher versionology.VersionFetcher) ([]versionology.Dependency, error) {
 				dependency := cargo.ConfigMetadataDependency{
 					ID:      "python",
 					Stacks:  []string{"io.buildpacks.stacks.jammy"},
 					Version: versionFetcher.Version().String(),
 				}
 
-				return versionology.NewDependency(dependency, "jammy")
+				return versionology.NewDependencyArray(dependency, "jammy")
 			}
 		})
 
@@ -115,13 +115,13 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 				}, nil
 			}
 
-			generateMetadata = func(versionFetcher versionology.VersionFetcher) (versionology.Dependency, error) {
+			generateMetadata = func(versionFetcher versionology.VersionFetcher) ([]versionology.Dependency, error) {
 				dependency := cargo.ConfigMetadataDependency{
 					ID:      "not a real dependency id",
 					Version: versionFetcher.Version().String(),
 				}
 
-				return versionology.NewDependency(dependency, "jammy")
+				return versionology.NewDependencyArray(dependency, "jammy")
 			}
 		})
 

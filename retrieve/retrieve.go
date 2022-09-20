@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joshuatcasey/collections"
 	"github.com/joshuatcasey/libdependency/buildpack_config"
 	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/joshuatcasey/libdependency/workflows"
@@ -13,8 +12,9 @@ import (
 )
 
 // GenerateMetadataFunc is a function type that buildpack authors will implement and pass in to NewMetadata.
-// Given a versionology.VersionFetcher, the implementation must return the associated metadata for that version
-type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionology.Dependency, error)
+// Given a versionology.VersionFetcher, the implementation must return the associated metadata for that version.
+// If there are multiple targets for the same version, return multiple versionology.Dependency.
+type GenerateMetadataFunc func(version versionology.VersionFetcher) ([]versionology.Dependency, error)
 
 // NewMetadata is the entrypoint for a buildpack to retrieve new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
@@ -33,13 +33,14 @@ func NewMetadata(id string, getNewVersions buildpack_config.VersionFetcherFunc, 
 		panic(err)
 	}
 
-	dependencies, err := collections.TransformFuncWithError(newVersions,
-		func(hasVersion versionology.VersionFetcher) (versionology.Dependency, error) {
-			fmt.Printf("Generating metadata for %s\n", hasVersion.Version().String())
-			return generateMetadata(hasVersion)
-		})
-	if err != nil {
-		panic(err)
+	var dependencies []versionology.Dependency
+	for _, version := range newVersions {
+		fmt.Printf("Generating metadata for %s\n", version.Version().String())
+		metadata, err := generateMetadata(version)
+		if err != nil {
+			panic(err)
+		}
+		dependencies = append(dependencies, metadata...)
 	}
 
 	metadataJson, err := workflows.ToWorkflowJson(dependencies)
