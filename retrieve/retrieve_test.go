@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/joshuatcasey/libdependency"
+	"github.com/joshuatcasey/libdependency/buildpack_config"
 	"github.com/joshuatcasey/libdependency/retrieve"
 	"github.com/joshuatcasey/libdependency/versionology"
 	. "github.com/onsi/gomega"
@@ -19,7 +19,7 @@ func testRetrieve(t *testing.T, context spec.G, it spec.S) {
 		Expect = NewWithT(t).Expect
 		output string
 
-		getVersions      libdependency.VersionFetcherFunc
+		getVersions      buildpack_config.VersionFetcherFunc
 		generateMetadata retrieve.GenerateMetadataFunc
 	)
 

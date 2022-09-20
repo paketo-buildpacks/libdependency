@@ -1,4 +1,4 @@
-package libdependency_test
+package buildpack_config_test
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/joshuatcasey/libdependency"
+	"github.com/joshuatcasey/libdependency/buildpack_config"
 	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/sclevine/spec"
@@ -20,20 +20,20 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 
 	context("ParseBuildpackToml", func() {
 		it("parses bundler's buildpack.toml", func() {
-			config, err := libdependency.ParseBuildpackToml(filepath.Join("testdata", "bundler", "buildpack.toml"))
+			config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "bundler", "buildpack.toml"))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(config.Metadata.Dependencies).To(HaveLen(3))
 		})
 
 		context("failure cases", func() {
 			it("returns an error when path not found", func() {
-				_, err := libdependency.ParseBuildpackToml("/bad/path")
+				_, err := buildpack_config.ParseBuildpackToml("/bad/path")
 				Expect(err).To(MatchError(os.ErrNotExist))
 				Expect(err).To(MatchError("unable to open buildpack.toml: open /bad/path: no such file or directory"))
 			})
 
 			it("returns an error when buildpack cannot be parsed", func() {
-				_, err := libdependency.ParseBuildpackToml(filepath.Join("testdata", "invalid", "buildpack.toml"))
+				_, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "invalid", "buildpack.toml"))
 				Expect(err.Error()).To(ContainSubstring("unable to parse buildpack.toml: toml: "))
 			})
 		})
@@ -57,7 +57,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("will filter by id", func() {
-			dependencies, err := libdependency.GetDependenciesById("id2", config)
+			dependencies, err := buildpack_config.GetDependenciesById("id2", config)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(versionology.Versions(dependencies)).To(ConsistOf("2.2.2", "3.3.3", "4.4.4"))
@@ -72,7 +72,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 			})
 
 			it("will return error when version is not valid semver", func() {
-				_, err := libdependency.GetDependenciesById("id-invalid", config)
+				_, err := buildpack_config.GetDependenciesById("id-invalid", config)
 				Expect(err).To(HaveOccurred())
 			})
 		})
@@ -96,7 +96,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("will filter by id", func() {
-			dependencies, err := libdependency.GetDependenciesByIdAndStack("id2", "stack1", config)
+			dependencies, err := buildpack_config.GetDependenciesByIdAndStack("id2", "stack1", config)
 			Expect(err).NotTo(HaveOccurred())
 
 			Expect(versionology.Versions(dependencies)).To(ConsistOf("2.2.2", "4.4.4"))
@@ -112,7 +112,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 			})
 
 			it("will return error when version is not valid semver", func() {
-				_, err := libdependency.GetDependenciesByIdAndStack("id-invalid", "stack", config)
+				_, err := buildpack_config.GetDependenciesByIdAndStack("id-invalid", "stack", config)
 				Expect(err).To(HaveOccurred())
 			})
 		})
@@ -120,7 +120,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 
 	context("GetConstraintsById", func() {
 		it("will filter by id", func() {
-			constraints, err := libdependency.GetConstraintsById("id2", cargo.Config{
+			constraints, err := buildpack_config.GetConstraintsById("id2", cargo.Config{
 				Metadata: cargo.ConfigMetadata{
 					DependencyConstraints: []cargo.ConfigMetadataDependencyConstraint{
 						{ID: "id1", Constraint: ">=1.2.3"},
@@ -136,7 +136,7 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 
 		context("failure cases", func() {
 			it("will return error if constraint is not valid semver", func() {
-				_, err := libdependency.GetConstraintsById("id1", cargo.Config{
+				_, err := buildpack_config.GetConstraintsById("id1", cargo.Config{
 					Metadata: cargo.ConfigMetadata{
 						DependencyConstraints: []cargo.ConfigMetadataDependencyConstraint{
 							{ID: "id1", Constraint: "foo"},
@@ -150,10 +150,10 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 
 	context("GetNewVersionsForId", func() {
 		it("will get new versions for id and stack", func() {
-			config, err := libdependency.ParseBuildpackToml(filepath.Join("testdata", "bundler", "buildpack.toml"))
+			config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "bundler", "buildpack.toml"))
 			Expect(err).NotTo(HaveOccurred())
 
-			newVersions, err := libdependency.GetNewVersionsForId(
+			newVersions, err := buildpack_config.GetNewVersionsForId(
 				"bundler",
 				config,
 				func() (versionology.VersionFetcherArray, error) {
@@ -175,10 +175,10 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 
 		context("when there are more new versions than allowed patches", func() {
 			it("will return all new versions", func() {
-				config, err := libdependency.ParseBuildpackToml(filepath.Join("testdata", "no-deps", "buildpack.toml"))
+				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "no-deps", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := libdependency.GetNewVersionsForId(
+				newVersions, err := buildpack_config.GetNewVersionsForId(
 					"dep",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -200,10 +200,10 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 
 		context("when there are no constraints", func() {
 			it("will return only versions not found in buildpack.toml", func() {
-				config, err := libdependency.ParseBuildpackToml(filepath.Join("testdata", "no-constraints", "buildpack.toml"))
+				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "no-constraints", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := libdependency.GetNewVersionsForId(
+				newVersions, err := buildpack_config.GetNewVersionsForId(
 					"dep1",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -221,10 +221,10 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 
 		context("when there are no existing constraints or dependencies for that id or stack", func() {
 			it("will return all new versions", func() {
-				config, err := libdependency.ParseBuildpackToml(filepath.Join("testdata", "empty", "buildpack.toml"))
+				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "empty", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := libdependency.GetNewVersionsForId(
+				newVersions, err := buildpack_config.GetNewVersionsForId(
 					"id",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -243,10 +243,10 @@ func testBuildpackToml(t *testing.T, context spec.G, it spec.S) {
 		context("failure cases", func() {
 			context("when getNewVersions returns an error", func() {
 				it("will return the error", func() {
-					config, err := libdependency.ParseBuildpackToml(filepath.Join("testdata", "deps-only", "buildpack.toml"))
+					config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "deps-only", "buildpack.toml"))
 					Expect(err).NotTo(HaveOccurred())
 
-					_, err = libdependency.GetNewVersionsForId(
+					_, err = buildpack_config.GetNewVersionsForId(
 						"id",
 						config,
 						func() (versionology.VersionFetcherArray, error) {

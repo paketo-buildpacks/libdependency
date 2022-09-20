@@ -1,4 +1,4 @@
-package libdependency
+package buildpack_config
 
 import (
 	"errors"

@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/joshuatcasey/collections"
-	"github.com/joshuatcasey/libdependency"
+	"github.com/joshuatcasey/libdependency/buildpack_config"
 	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/joshuatcasey/libdependency/workflows"
 	"github.com/paketo-buildpacks/packit/v2/fs"
@@ -19,16 +19,16 @@ type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionolog
 // NewMetadata is the entrypoint for a buildpack to retrieve new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
 // this function will take in the dependency workflow inputs and the dependency workflow outputs
-func NewMetadata(id string, getNewVersions libdependency.VersionFetcherFunc, generateMetadata GenerateMetadataFunc) {
+func NewMetadata(id string, getNewVersions buildpack_config.VersionFetcherFunc, generateMetadata GenerateMetadataFunc) {
 	buildpackTomlPath, output := FetchArgs()
 	validate(buildpackTomlPath, output)
 
-	config, err := libdependency.ParseBuildpackToml(buildpackTomlPath)
+	config, err := buildpack_config.ParseBuildpackToml(buildpackTomlPath)
 	if err != nil {
 		panic(err)
 	}
 
-	newVersions, err := libdependency.GetNewVersionsForId(id, config, getNewVersions)
+	newVersions, err := buildpack_config.GetNewVersionsForId(id, config, getNewVersions)
 	if err != nil {
 		panic(err)
 	}

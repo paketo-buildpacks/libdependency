@@ -1,4 +1,4 @@
-package libdependency_test
+package buildpack_config_test
 
 import (
 	"testing"
