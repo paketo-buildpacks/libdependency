@@ -33,7 +33,7 @@ func ExampleGetNewVersionsForId() {
 	//   "1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.1.0",
 	//   "1.0.0"
 	// ]
-	// Found 2 versions of fake-dependency-id for constraint 1.*.*, after limiting for 2 patches
+	// Found 2 versions of fake-dependency-id newer than '1.1.0' for constraint 1.*.*, after limiting for 2 patches
 	// [
 	//   "1.5.0", "1.4.0"
 	// ]

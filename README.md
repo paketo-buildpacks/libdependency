@@ -14,7 +14,7 @@ The job of `NewMetadata` is to read in the workflow inputs, run the provided fun
 the appropriate outputs to the workflow.
 
 ```go
-type VersionFetcherFunc func() ([]versionology.VersionFetcher, error)
+type VersionFetcherFunc func() (versionology.VersionFetcherArray, error)
 type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionology.Dependency, error)
 
 func NewMetadata(id string, getNewVersions VersionFetcherFunc, generateMetadata GenerateMetadataFunc)

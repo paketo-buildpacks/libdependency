@@ -24,5 +24,17 @@ func ExampleLogAllVersions() {
 	//   "1.0.7",       "1.0.6",  "1.0.5",  "1.0.4", "1.0.3",
 	//   "1.0.2",       "1.0.1",  "1.0.0"
 	//]
+}
 
+func ExampleLogAllVersions_OneVersion() {
+	array, err := versionology.NewSimpleVersionFetcherArray("888.777.666")
+	if err != nil {
+		panic(err)
+	}
+	versionology.LogAllVersions("dep-id", "description", array)
+
+	// Output: Found 1 version of dep-id description
+	//[
+	//   "888.777.666"
+	//]
 }

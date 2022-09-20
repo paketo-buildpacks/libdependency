@@ -65,8 +65,8 @@ type VersionFetcherFunc func() (versionology.VersionFetcherArray, error)
 // - returned by getAllVersions
 // - match constraints
 // - newer than all existing dependencies
-func GetNewVersionsForId(id string, config cargo.Config, getAllVersions VersionFetcherFunc) ([]versionology.VersionFetcher, error) {
-	empty := make([]versionology.VersionFetcher, 0)
+func GetNewVersionsForId(id string, config cargo.Config, getAllVersions VersionFetcherFunc) (versionology.VersionFetcherArray, error) {
+	empty := versionology.NewVersionFetcherArray()
 
 	allVersions, err := getAllVersions()
 	if err != nil {

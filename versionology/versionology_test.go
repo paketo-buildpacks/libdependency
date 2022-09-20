@@ -39,7 +39,7 @@ func testVersionology(t *testing.T, context spec.G, it spec.S) {
 
 	context("FilterUpstreamVersionsByConstraints", func() {
 		it("will return only those upstream versions that match constraints and are newer than existing versions", func() {
-			upstreamVersions := []versionology.VersionFetcher{
+			upstreamVersions := versionology.VersionFetcherArray{
 				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.0")),
 				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.1")),
 				versionology.NewSimpleVersionFetcher(semver.MustParse("6.0.2")),
@@ -77,7 +77,7 @@ func testVersionology(t *testing.T, context spec.G, it spec.S) {
 					Patches:    2,
 				},
 			}
-			dependencies := []versionology.VersionFetcher{
+			dependencies := versionology.VersionFetcherArray{
 				versionology.NewSimpleVersionFetcher(semver.MustParse("6.1.0")),
 				versionology.NewSimpleVersionFetcher(semver.MustParse("7.0.4")),
 			}

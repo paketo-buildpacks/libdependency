@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joshuatcasey/libdependency/buildpack_config"
 	"github.com/joshuatcasey/libdependency/versionology"
@@ -33,15 +34,7 @@ func NewMetadata(id string, getNewVersions buildpack_config.VersionFetcherFunc, 
 		panic(err)
 	}
 
-	var dependencies []versionology.Dependency
-	for _, version := range newVersions {
-		fmt.Printf("Generating metadata for %s\n", version.Version().String())
-		metadata, err := generateMetadata(version)
-		if err != nil {
-			panic(err)
-		}
-		dependencies = append(dependencies, metadata...)
-	}
+	dependencies := GenerateAllMetadata(newVersions, generateMetadata)
 
 	metadataJson, err := workflows.ToWorkflowJson(dependencies)
 	if err != nil {
@@ -53,6 +46,25 @@ func NewMetadata(id string, getNewVersions buildpack_config.VersionFetcherFunc, 
 	} else {
 		fmt.Printf("Wrote metadata to %s\n", output)
 	}
+}
+
+// GenerateAllMetadata is public for testing purposes only
+func GenerateAllMetadata(newVersions versionology.VersionFetcherArray, generateMetadata GenerateMetadataFunc) []versionology.Dependency {
+	var dependencies []versionology.Dependency
+	for _, version := range newVersions {
+		metadata, err := generateMetadata(version)
+		if err != nil {
+			panic(err)
+		}
+
+		var targets []string
+		for _, metadatum := range metadata {
+			targets = append(targets, metadatum.Target)
+		}
+		fmt.Printf("Generating metadata for %s, with targets [%s]\n", version.Version().String(), strings.Join(targets, ", "))
+		dependencies = append(dependencies, metadata...)
+	}
+	return dependencies
 }
 
 func validate(buildpackTomlPath, metadataFile string) {

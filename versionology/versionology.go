@@ -26,7 +26,11 @@ func ConstraintsToString(semverVersions []Constraint) []string {
 // LogAllVersions will print out a JSON array of the versions arranged as a block table.
 // See Example tests for demonstration.
 func LogAllVersions(id, description string, versions []VersionFetcher) {
-	fmt.Printf("Found %d versions of %s %s\n", len(versions), id, description)
+	fmtString := "Found %d versions of %s %s\n"
+	if len(versions) == 1 {
+		fmtString = "Found %d version of %s %s\n"
+	}
+	fmt.Printf(fmtString, len(versions), id, description)
 
 	sort.Slice(versions, func(i, j int) bool {
 		return versions[i].Version().GreaterThan(versions[j].Version())
@@ -71,7 +75,7 @@ func FilterUpstreamVersionsByConstraints(
 	constraints []Constraint,
 	existingVersion VersionFetcherArray) VersionFetcherArray {
 
-	constraintsToDependencies := make(map[Constraint][]VersionFetcher)
+	constraintsToDependencies := make(map[Constraint]VersionFetcherArray)
 
 	for _, dependency := range existingVersion {
 		for _, constraint := range constraints {
@@ -123,7 +127,10 @@ func FilterUpstreamVersionsByConstraints(
 			constraintsToOutputVersion = constraintsToOutputVersion[len(constraintsToOutputVersion)-constraint.Patches:]
 		}
 
-		constraintDescription := fmt.Sprintf("for constraint %s, after limiting for %d patches", constraint.Constraint.String(), constraint.Patches)
+		constraintDescription := fmt.Sprintf("newer than '%s' for constraint %s, after limiting for %d patches",
+			constraintsToDependencies[constraint].GetNewestVersion(),
+			constraint.Constraint.String(),
+			constraint.Patches)
 		LogAllVersions(id, constraintDescription, constraintsToOutputVersion)
 
 		outputVersions = append(outputVersions, constraintsToOutputVersion...)

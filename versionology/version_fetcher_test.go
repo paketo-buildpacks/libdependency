@@ -25,4 +25,37 @@ func testVersionFetcher(t *testing.T, context spec.G, it spec.S) {
 			})
 		})
 	})
+
+	context("GetNewestVersion", func() {
+		var (
+			versions versionology.VersionFetcherArray
+			err      error
+		)
+
+		it("will return the newest version, using semver ordering not lexical ordering", func() {
+			versions, err = versionology.NewSimpleVersionFetcherArray("1.9", "1.10")
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(versions.GetNewestVersion()).To(Equal("1.10.0"))
+		})
+
+		it("will return the newest version", func() {
+			versions, err = versionology.NewSimpleVersionFetcherArray("1.2.3", "4.5.6", "7.8.9")
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(versions.GetNewestVersion()).To(Equal("7.8.9"))
+		})
+
+		context("failure cases", func() {
+			context("with no versions", func() {
+				it.Before(func() {
+					versions = versionology.NewVersionFetcherArray()
+				})
+
+				it("will return empty string", func() {
+					Expect(versions.GetNewestVersion()).To(Equal(""))
+				})
+			})
+		})
+	})
 }

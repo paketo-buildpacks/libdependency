@@ -1,6 +1,8 @@
 package versionology
 
 import (
+	"sort"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/collections"
 )
@@ -26,8 +28,19 @@ func NewVersionFetcherArray() VersionFetcherArray {
 	return make([]VersionFetcher, 0)
 }
 
-func (array VersionFetcherArray) GetVersionStrings() []string {
-	return VersionFetcherToString(array)
+func (versions VersionFetcherArray) GetVersionStrings() []string {
+	return VersionFetcherToString(versions)
+}
+
+func (versions VersionFetcherArray) GetNewestVersion() string {
+	if len(versions) < 1 {
+		return ""
+	}
+	temp := versions
+	sort.Slice(temp, func(i, j int) bool {
+		return temp[i].Version().LessThan(temp[j].Version())
+	})
+	return temp[len(temp)-1].Version().String()
 }
 
 func NewSimpleVersionFetcher(version *semver.Version) SimpleVersionFetcher {
