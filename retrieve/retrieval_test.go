@@ -1,4 +1,4 @@
-package retrieval_test
+package retrieve_test
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/libdependency/buildpack_config"
-	"github.com/joshuatcasey/libdependency/retrieval"
+	"github.com/joshuatcasey/libdependency/retrieve"
 	"github.com/joshuatcasey/libdependency/versionology"
 	. "github.com/onsi/gomega"
 	"github.com/paketo-buildpacks/occam/matchers"
@@ -20,8 +20,8 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 		Expect = NewWithT(t).Expect
 		output string
 
-		getAllVersions   retrieval.GetAllVersionsFunc
-		generateMetadata retrieval.GenerateMetadataFunc
+		getAllVersions   retrieve.GetAllVersionsFunc
+		generateMetadata retrieve.GenerateMetadataFunc
 	)
 
 	it.Before(func() {
@@ -30,7 +30,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 
 	context("given fake versions and fake metadata", func() {
 		it.Before(func() {
-			retrieval.FetchArgs = func() (string, string) {
+			retrieve.FetchArgs = func() (string, string) {
 				buildpackTomlPath := filepath.Join("testdata", "happy_path", "buildpack.toml")
 				return buildpackTomlPath, output
 			}
@@ -58,7 +58,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("should generate metadata.json in the output dir", func() {
-			retrieval.NewMetadata("fake-dependency-id", getAllVersions, generateMetadata)
+			retrieve.NewMetadata("fake-dependency-id", getAllVersions, generateMetadata)
 
 			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
 [
@@ -70,7 +70,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 
 	context("cpython", func() {
 		it.Before(func() {
-			retrieval.FetchArgs = func() (string, string) {
+			retrieve.FetchArgs = func() (string, string) {
 				buildpackTomlPath := filepath.Join("testdata", "cpython-de13b843", "buildpack.toml")
 				return buildpackTomlPath, output
 			}
@@ -91,7 +91,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("should only generate metadata for the two newest versions", func() {
-			retrieval.NewMetadata("python", getAllVersions, generateMetadata)
+			retrieve.NewMetadata("python", getAllVersions, generateMetadata)
 
 			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
 [
@@ -103,7 +103,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 
 	context("when the dependency id is not found in buildpack.toml", func() {
 		it.Before(func() {
-			retrieval.FetchArgs = func() (string, string) {
+			retrieve.FetchArgs = func() (string, string) {
 				buildpackTomlPath := filepath.Join("testdata", "happy_path", "buildpack.toml")
 				return buildpackTomlPath, output
 			}
@@ -127,7 +127,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("all versions are found in the metadata.json", func() {
-			retrieval.NewMetadata("not a real dependency id", getAllVersions, generateMetadata)
+			retrieve.NewMetadata("not a real dependency id", getAllVersions, generateMetadata)
 
 			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
 [
@@ -143,7 +143,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 			config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "bundler", "buildpack.toml"))
 			Expect(err).NotTo(HaveOccurred())
 
-			newVersions, err := retrieval.GetNewVersionsForId(
+			newVersions, err := retrieve.GetNewVersionsForId(
 				"bundler",
 				config,
 				func() (versionology.VersionFetcherArray, error) {
@@ -168,7 +168,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "no-deps", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := retrieval.GetNewVersionsForId(
+				newVersions, err := retrieve.GetNewVersionsForId(
 					"dep",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -193,7 +193,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "no-constraints", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := retrieval.GetNewVersionsForId(
+				newVersions, err := retrieve.GetNewVersionsForId(
 					"dep1",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -214,7 +214,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "empty", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := retrieval.GetNewVersionsForId(
+				newVersions, err := retrieve.GetNewVersionsForId(
 					"id",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -236,7 +236,7 @@ func testNewMetadata(t *testing.T, context spec.G, it spec.S) {
 					config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "deps-only", "buildpack.toml"))
 					Expect(err).NotTo(HaveOccurred())
 
-					_, err = retrieval.GetNewVersionsForId(
+					_, err = retrieve.GetNewVersionsForId(
 						"id",
 						config,
 						func() (versionology.VersionFetcherArray, error) {

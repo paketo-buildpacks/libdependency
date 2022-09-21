@@ -1,7 +1,7 @@
-package retrieval_test
+package retrieve_test
 
 import (
-	"github.com/joshuatcasey/libdependency/retrieval"
+	"github.com/joshuatcasey/libdependency/retrieve"
 	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 )
@@ -30,7 +30,7 @@ func ExampleGenerateAllMetadata() {
 		}
 	}
 
-	retrieval.GenerateAllMetadata(versions, generateMetadata)
+	retrieve.GenerateAllMetadata(versions, generateMetadata)
 
 	// Output:
 	// Generating metadata for 1.2.3, with targets [target1]

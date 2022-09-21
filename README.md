@@ -6,5 +6,5 @@ It also contains various helpers and actions to assist the overall dependency ma
 
 ## Retrieval
 
-The `retrieval` subpackage has an entrypoint func called `NewMetadata` that takes in a buildpack id.
+The `retrieve` subpackage has an entrypoint func called `NewMetadata` that takes in a buildpack id.
 See the `godoc` for that package for additional information.

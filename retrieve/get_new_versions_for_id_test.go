@@ -1,4 +1,4 @@
-package retrieval_test
+package retrieve_test
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/libdependency/buildpack_config"
-	"github.com/joshuatcasey/libdependency/retrieval"
+	"github.com/joshuatcasey/libdependency/retrieve"
 	"github.com/joshuatcasey/libdependency/versionology"
 	"github.com/sclevine/spec"
 
@@ -22,7 +22,7 @@ func testGetNewVersionsForId(t *testing.T, context spec.G, it spec.S) {
 			config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "bundler", "buildpack.toml"))
 			Expect(err).NotTo(HaveOccurred())
 
-			newVersions, err := retrieval.GetNewVersionsForId(
+			newVersions, err := retrieve.GetNewVersionsForId(
 				"bundler",
 				config,
 				func() (versionology.VersionFetcherArray, error) {
@@ -47,7 +47,7 @@ func testGetNewVersionsForId(t *testing.T, context spec.G, it spec.S) {
 				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "no-deps", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := retrieval.GetNewVersionsForId(
+				newVersions, err := retrieve.GetNewVersionsForId(
 					"dep",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -72,7 +72,7 @@ func testGetNewVersionsForId(t *testing.T, context spec.G, it spec.S) {
 				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "no-constraints", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := retrieval.GetNewVersionsForId(
+				newVersions, err := retrieve.GetNewVersionsForId(
 					"dep1",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -93,7 +93,7 @@ func testGetNewVersionsForId(t *testing.T, context spec.G, it spec.S) {
 				config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "empty", "buildpack.toml"))
 				Expect(err).NotTo(HaveOccurred())
 
-				newVersions, err := retrieval.GetNewVersionsForId(
+				newVersions, err := retrieve.GetNewVersionsForId(
 					"id",
 					config,
 					func() (versionology.VersionFetcherArray, error) {
@@ -115,7 +115,7 @@ func testGetNewVersionsForId(t *testing.T, context spec.G, it spec.S) {
 					config, err := buildpack_config.ParseBuildpackToml(filepath.Join("testdata", "deps-only", "buildpack.toml"))
 					Expect(err).NotTo(HaveOccurred())
 
-					_, err = retrieval.GetNewVersionsForId(
+					_, err = retrieve.GetNewVersionsForId(
 						"id",
 						config,
 						func() (versionology.VersionFetcherArray, error) {
