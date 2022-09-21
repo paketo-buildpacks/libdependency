@@ -1,6 +1,7 @@
 package retrieve
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/joshuatcasey/libdependency/buildpack_config"
 	"github.com/joshuatcasey/libdependency/versionology"
-	"github.com/joshuatcasey/libdependency/workflows"
 	"github.com/paketo-buildpacks/packit/v2/fs"
 )
 
@@ -44,7 +44,7 @@ func NewMetadata(id string, getAllVersions GetAllVersionsFunc, generateMetadata 
 
 	dependencies := GenerateAllMetadata(newVersions, generateMetadata)
 
-	metadataJson, err := workflows.ToWorkflowJson(dependencies)
+	metadataJson, err := toWorkflowJson(dependencies)
 	if err != nil {
 		panic(fmt.Errorf("unable to marshall metadata json, with error=%w", err))
 	}
@@ -53,6 +53,19 @@ func NewMetadata(id string, getAllVersions GetAllVersionsFunc, generateMetadata 
 		panic(fmt.Errorf("cannot write to %s: %w", output, err))
 	} else {
 		fmt.Printf("Wrote metadata to %s\n", output)
+	}
+}
+
+// toWorkflowJson will return a string containing JSON formatted as a GitHub workflow expects, with
+// no whitespace outside of strings.
+//
+// Use this when printing output or writing a file intended for use by a workflow.
+// https://github.com/orgs/community/discussions/26288
+func toWorkflowJson(item any) (string, error) {
+	if bytes, err := json.Marshal(item); err != nil {
+		return "", err
+	} else {
+		return string(bytes), nil
 	}
 }
 
