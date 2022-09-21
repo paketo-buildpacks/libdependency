@@ -1,4 +1,4 @@
-package retrieve
+package retrieval
 
 import (
 	"flag"
@@ -12,6 +12,14 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/fs"
 )
 
+// GetAllVersionsFunc is a function type that buildpack authors will implement and pass in to NewMetadata.
+// The implementation should return all known upstream versions of a dependency.
+// Buildpack authors can choose the source of these versions. Some examples include:
+//
+// - `nginx` versions from https://github.com/nginx/nginx/tags
+// - `bundler` versions from https://rubygems.org/api/v1/versions/bundler.json
+type GetAllVersionsFunc func() (versionology.VersionFetcherArray, error)
+
 // GenerateMetadataFunc is a function type that buildpack authors will implement and pass in to NewMetadata.
 // Given a versionology.VersionFetcher, the implementation must return the associated metadata for that version.
 // If there are multiple targets for the same version, return multiple versionology.Dependency.
@@ -20,7 +28,7 @@ type GenerateMetadataFunc func(version versionology.VersionFetcher) ([]versionol
 // NewMetadata is the entrypoint for a buildpack to retrieve new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
 // this function will take in the dependency workflow inputs and the dependency workflow outputs
-func NewMetadata(id string, getNewVersions buildpack_config.VersionFetcherFunc, generateMetadata GenerateMetadataFunc) {
+func NewMetadata(id string, getAllVersions GetAllVersionsFunc, generateMetadata GenerateMetadataFunc) {
 	buildpackTomlPath, output := FetchArgs()
 	validate(buildpackTomlPath, output)
 
@@ -29,7 +37,7 @@ func NewMetadata(id string, getNewVersions buildpack_config.VersionFetcherFunc, 
 		panic(err)
 	}
 
-	newVersions, err := buildpack_config.GetNewVersionsForId(id, config, getNewVersions)
+	newVersions, err := GetNewVersionsForId(id, config, getAllVersions)
 	if err != nil {
 		panic(err)
 	}

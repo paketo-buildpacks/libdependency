@@ -1,4 +1,4 @@
-package retrieve
+package retrieval
 
 import (
 	"fmt"

@@ -4,28 +4,7 @@ Package libdependency provides a library for buildpack authors to construct code
 
 It also contains various helpers and actions to assist the overall dependency management workflow.
 
-## Integration
+## Retrieval
 
-### Retrieval
-
-The `retrieve` subpackage has an entrypoint func called `NewMetadata` that takes in a buildpack id and two functions.
-Buildpack authors will need to pass implementations for `VersionFetcherFunc` and `GenerateMetadataFunc` into `NewMetadata`.
-The job of `NewMetadata` is to read in the workflow inputs, run the provided functions, and provide
-the appropriate outputs to the workflow.
-
-```go
-type VersionFetcherFunc func() (versionology.VersionFetcherArray, error)
-type GenerateMetadataFunc func(version versionology.VersionFetcher) (versionology.Dependency, error)
-
-func NewMetadata(id string, getNewVersions VersionFetcherFunc, generateMetadata GenerateMetadataFunc)
-```
-
-The role of `VersionFetcherFunc` is to return all known versions from an online source as an array of `versionology.VersionFetcher`.
-
-Buildpacks authors can choose the source of these versions. Some examples include:
-
-- `nginx` versions from https://github.com/nginx/nginx/tags
-- `bundler` versions from https://rubygems.org/api/v1/versions/bundler.json
-
-The role of `GenerateMetadataFunc` is to take in a single version and generate all the associated metadata for it.
-That way `NewMetadata` can assemble the `metadata.json` file containing all new metadata for all new versions.
+The `retrieval` subpackage has an entrypoint func called `NewMetadata` that takes in a buildpack id.
+See the `godoc` for that package for additional information.

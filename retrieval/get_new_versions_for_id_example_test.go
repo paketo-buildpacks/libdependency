@@ -1,15 +1,16 @@
-package buildpack_config_test
+package retrieval_test
 
 import (
 	"path/filepath"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/libdependency/buildpack_config"
+	"github.com/joshuatcasey/libdependency/retrieval"
 	"github.com/joshuatcasey/libdependency/versionology"
 )
 
 func ExampleGetNewVersionsForId() {
-	config, _ := buildpack_config.ParseBuildpackToml(filepath.Join("..", "retrieve", "testdata", "happy_path", "buildpack.toml"))
+	config, _ := buildpack_config.ParseBuildpackToml(filepath.Join("..", "retrieval", "testdata", "happy_path", "buildpack.toml"))
 	getAllVersions := func() (versionology.VersionFetcherArray, error) {
 		return versionology.VersionFetcherArray{
 			versionology.NewSimpleVersionFetcher(semver.MustParse("1.0.0")),
@@ -20,7 +21,7 @@ func ExampleGetNewVersionsForId() {
 			versionology.NewSimpleVersionFetcher(semver.MustParse("1.5.0")),
 		}, nil
 	}
-	_, _ = buildpack_config.GetNewVersionsForId("fake-dependency-id", config, getAllVersions)
+	_, _ = retrieval.GetNewVersionsForId("fake-dependency-id", config, getAllVersions)
 
 	// Output:
 	// Found 6 versions of fake-dependency-id from upstream
