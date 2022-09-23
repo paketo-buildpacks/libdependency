@@ -1,0 +1,71 @@
+api = "0.7"
+
+[buildpack]
+  description = "A buildpack for installing the approriate Bundler version"
+  homepage = "https://github.com/paketo-buildpacks/bundler"
+  id = "paketo-buildpacks/bundler"
+  keywords = ["ruby", "bundler"]
+  name = "Paketo Bundler Buildpack"
+  sbom-formats = ["application/vnd.cyclonedx+json", "application/spdx+json", "application/vnd.syft+json"]
+
+  [[buildpack.licenses]]
+    type = "Apache-2.0"
+    uri = "https://github.com/paketo-buildpacks/bundler/blob/main/LICENSE"
+
+[metadata]
+  include-files = ["bin/build", "bin/detect", "bin/run", "buildpack.toml"]
+  pre-package = "./scripts/build.sh"
+  [metadata.default-versions]
+    bundler = "2.x.x"
+
+  [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:bundler:bundler:1.17.3:*:*:*:*:ruby:*:*"
+    id = "bundler"
+    licenses = ["MIT", "MIT-0"]
+    name = "Bundler"
+    purl = "pkg:generic/bundler@1.17.3?checksum=bc4bf75b548b27451aa9f443b18c46a739dd22ad79f7a5f90b485376a67dc352&download_url=https://rubygems.org/downloads/bundler-1.17.3.gem"
+    sha256 = "d59b0711914a7876a10032d925811b9cfe87a1e9f87c82a861c3d69bb6857e93"
+    source = "https://rubygems.org/downloads/bundler-1.17.3.gem"
+    source_sha256 = "bc4bf75b548b27451aa9f443b18c46a739dd22ad79f7a5f90b485376a67dc352"
+    stacks = ["io.buildpacks.stacks.bionic"]
+    uri = "https://deps.paketo.io/bundler/bundler_1.17.3_linux_noarch_bionic_d59b0711.tgz"
+    version = "1.17.3"
+
+  [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:bundler:bundler:2.3.15:*:*:*:*:ruby:*:*"
+    id = "bundler"
+    licenses = ["MIT", "MIT-0"]
+    name = "Bundler"
+    purl = "pkg:generic/bundler@2.3.15?checksum=05b7a8a409982c5d336371dee433e905ff708596f332e5ef0379559b6968431d&download_url=https://rubygems.org/downloads/bundler-2.3.15.gem"
+    sha256 = "03c92b210f2d8ee7f297ed6071017f95e683f6b69aa62f7bd6fc32eed17fac34"
+    source = "https://rubygems.org/downloads/bundler-2.3.15.gem"
+    source_sha256 = "05b7a8a409982c5d336371dee433e905ff708596f332e5ef0379559b6968431d"
+    stacks = ["io.buildpacks.stacks.bionic"]
+    uri = "https://deps.paketo.io/bundler/bundler_2.3.15_linux_noarch_bionic_03c92b21.tgz"
+    version = "2.3.15"
+
+  [[metadata.dependencies]]
+    cpe = "cpe:2.3:a:bundler:bundler:2.3.16:*:*:*:*:ruby:*:*"
+    id = "bundler"
+    licenses = ["MIT", "MIT-0"]
+    name = "Bundler"
+    purl = "pkg:generic/bundler@2.3.16?checksum=4d6fbda60cdfa44f14a9918ca5d4e91b10509be22c0c724cdbcdeefaf186f672&download_url=https://rubygems.org/downloads/bundler-2.3.16.gem"
+    sha256 = "61501507a5787d64462139fa32b339a1a83deb3347a5fa94e8fb11504f590d0a"
+    source = "https://rubygems.org/downloads/bundler-2.3.16.gem"
+    source_sha256 = "4d6fbda60cdfa44f14a9918ca5d4e91b10509be22c0c724cdbcdeefaf186f672"
+    stacks = ["io.buildpacks.stacks.bionic"]
+    uri = "https://deps.paketo.io/bundler/bundler_2.3.16_linux_noarch_bionic_61501507.tgz"
+    version = "2.3.16"
+
+  [[metadata.dependency-constraints]]
+    constraint = "1.*.*"
+    id = "bundler"
+    patches = 2
+
+  [[metadata.dependency-constraints]]
+    constraint = "2.*.*"
+    id = "bundler"
+    patches = 3
+
+[[stacks]]
+  id = "io.buildpacks.stacks.bionic"

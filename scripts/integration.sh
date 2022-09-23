@@ -43,8 +43,6 @@ function main() {
       util::print::warn "** WARNING  No Integration tests **"
   fi
 
-  tools::install
-  images::pull
   tests::run
 }
 
@@ -60,64 +58,13 @@ OPTIONS
 USAGE
 }
 
-function tools::install() {
-  util::tools::pack::install \
-    --directory "${BUILDPACKDIR}/.bin"
-
-  util::tools::jam::install \
-    --directory "${BUILDPACKDIR}/.bin"
-
-  util::tools::create-package::install \
-    --directory "${BUILDPACKDIR}/.bin"
-
-  if [[ -f "${BUILDPACKDIR}/.libbuildpack" ]]; then
-    util::tools::packager::install \
-      --directory "${BUILDPACKDIR}/.bin"
-  fi
-}
-
-function images::pull() {
-  local builder
-  builder=""
-
-  if [[ -f "${BUILDPACKDIR}/integration.json" ]]; then
-    builder="$(jq -r .builder "${BUILDPACKDIR}/integration.json")"
-  fi
-
-  if [[ "${builder}" == "null" || -z "${builder}" ]]; then
-    builder="index.docker.io/paketobuildpacks/builder:buildpackless-base"
-  fi
-
-  util::print::title "Pulling builder image..."
-  docker pull "${builder}"
-
-  util::print::title "Setting default pack builder image..."
-  pack config default-builder "${builder}"
-
-  local run_image lifecycle_image
-  run_image="$(
-    pack inspect-builder "${builder}" --output json \
-      | jq -r '.remote_info.run_images[0].name'
-  )"
-  lifecycle_image="index.docker.io/buildpacksio/lifecycle:$(
-    pack inspect-builder "${builder}" --output json \
-      | jq -r '.remote_info.lifecycle.version'
-  )"
-
-  util::print::title "Pulling run image..."
-  docker pull "${run_image}"
-
-  util::print::title "Pulling lifecycle image..."
-  docker pull "${lifecycle_image}"
-}
-
 function token::fetch() {
   GIT_TOKEN="$(util::git::token::fetch)"
   export GIT_TOKEN
 }
 
 function tests::run() {
-  util::print::title "Run Buildpack Runtime Integration Tests"
+  util::print::title "Run Library Integration Tests"
 
   testout=$(mktemp)
   pushd "${BUILDPACKDIR}" > /dev/null

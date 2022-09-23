@@ -1,4 +1,4 @@
-package libdependency_test
+package buildpack_config_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/sclevine/spec/report"
 )
 
-func TestUnitBundler(t *testing.T) {
+func TestUnitFuncs(t *testing.T) {
 	suite := spec.New("libdependency", spec.Report(report.Terminal{}))
 	suite("buildpackToml", testBuildpackToml)
 	suite.Run(t)

@@ -55,7 +55,7 @@ func testGithub(t *testing.T, context spec.G, it spec.S) {
 
 		})
 
-		context("when there's only a tag", func() {
+		context("when there is only a tag", func() {
 			it("will return the tag", func() {
 				releaseName, err := SanitizeGithubReleaseName(GithubReleaseNamesDTO{
 					TagName: "1.2.3",
@@ -88,7 +88,7 @@ func testGithub(t *testing.T, context spec.G, it spec.S) {
 
 			it("will strip trailing whitespace", func() {
 				releaseName, err := SanitizeGithubReleaseName(GithubReleaseNamesDTO{
-					TagName: "   4.5.6",
+					TagName: "4.5.6   ",
 				})
 
 				Expect(err).NotTo(HaveOccurred())
@@ -97,7 +97,7 @@ func testGithub(t *testing.T, context spec.G, it spec.S) {
 			})
 		})
 
-		context("when there's only a name", func() {
+		context("when there is only a name", func() {
 			it("will return the name", func() {
 				releaseName, err := SanitizeGithubReleaseName(GithubReleaseNamesDTO{
 					Name: "9.8.7",
@@ -130,7 +130,7 @@ func testGithub(t *testing.T, context spec.G, it spec.S) {
 
 			it("will strip trailing whitespace", func() {
 				releaseName, err := SanitizeGithubReleaseName(GithubReleaseNamesDTO{
-					Name: "   6.5.4",
+					Name: "6.5.4   ",
 				})
 
 				Expect(err).NotTo(HaveOccurred())

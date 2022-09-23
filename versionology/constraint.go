@@ -5,12 +5,15 @@ import (
 	"github.com/paketo-buildpacks/packit/v2/cargo"
 )
 
+// Constraint largely mimics cargo.ConfigMetadataDependencyConstraint but has
+// a semver.Constraints instead of a string
 type Constraint struct {
 	Constraint *semver.Constraints
 	ID         string
 	Patches    int
 }
 
+// NewConstraint will translate a cargo.ConfigMetadataDependencyConstraint into a Constraint
 func NewConstraint(c cargo.ConfigMetadataDependencyConstraint) (Constraint, error) {
 	semverConstraint, err := semver.NewConstraint(c.Constraint)
 
@@ -25,6 +28,7 @@ func NewConstraint(c cargo.ConfigMetadataDependencyConstraint) (Constraint, erro
 	}, nil
 }
 
-func (c Constraint) Check(hasVersion HasVersion) bool {
-	return c.Constraint.Check(hasVersion.GetVersion())
+// Check tests if a version satisfies the constraints.
+func (c Constraint) Check(versionFetcher VersionFetcher) bool {
+	return c.Constraint.Check(versionFetcher.Version())
 }

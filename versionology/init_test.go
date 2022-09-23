@@ -7,8 +7,9 @@ import (
 	"github.com/sclevine/spec/report"
 )
 
-func TestUnitBundler(t *testing.T) {
+func TestUnitFuncs(t *testing.T) {
 	suite := spec.New("versionology", spec.Report(report.Terminal{}))
 	suite("Versionology", testVersionology)
+	suite("VersionFetcher", testVersionFetcher)
 	suite.Run(t)
 }

@@ -4,37 +4,40 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/collections"
 )
 
-func HasVersionToString(semverVersions []HasVersion) []string {
-	return collections.TransformFunc(semverVersions, func(version HasVersion) string {
-		return version.GetVersion().String()
+// VersionFetcherToString translates from an array of VersionFetcher to an array of strings.
+// Primarily intended as a test helper.
+func VersionFetcherToString(semverVersions []VersionFetcher) []string {
+	return collections.TransformFunc(semverVersions, func(version VersionFetcher) string {
+		return version.Version().String()
 	})
 }
 
-func SemverToString(semverVersions []*semver.Version) []string {
-	return collections.TransformFunc(semverVersions, func(v *semver.Version) string {
-		return v.String()
-	})
-}
-
+// ConstraintsToString translates from an array of Constraints to an array of strings
+// Primarily intended as a test helper.
 func ConstraintsToString(semverVersions []Constraint) []string {
 	return collections.TransformFunc(semverVersions, func(c Constraint) string {
 		return c.Constraint.String()
 	})
 }
 
-func LogAllVersions(id, description string, versions []HasVersion) {
-	fmt.Printf("Found %d versions of %s %s\n", len(versions), id, description)
+// LogAllVersions will print out a JSON array of the versions arranged as a block table.
+// See Example tests for demonstration.
+func LogAllVersions(id, description string, versions []VersionFetcher) {
+	fmtString := "Found %d versions of %s %s\n"
+	if len(versions) == 1 {
+		fmtString = "Found %d version of %s %s\n"
+	}
+	fmt.Printf(fmtString, len(versions), id, description)
 
 	sort.Slice(versions, func(i, j int) bool {
-		return versions[i].GetVersion().GreaterThan(versions[j].GetVersion())
+		return versions[i].Version().GreaterThan(versions[j].Version())
 	})
 
 	fmt.Printf("[\n  ")
-	strings := HasVersionToString(versions)
+	strings := VersionFetcherToString(versions)
 
 	maxWidth := make([]int, 5)
 	for i, s := range strings {
@@ -62,28 +65,19 @@ func LogAllVersions(id, description string, versions []HasVersion) {
 	fmt.Printf("\n]\n")
 }
 
-func FilterVersionsByConstraints(inputVersions []*semver.Version, constraints []*semver.Constraints) []*semver.Version {
-	if len(constraints) == 0 {
-		return inputVersions
-	}
+// FilterUpstreamVersionsByConstraints will return only those versions with the following properties:
+// - contained in upstreamVersions
+// - satisfy at least one constraint
+// - newer than all existing dependencies
+func FilterUpstreamVersionsByConstraints(
+	id string,
+	upstreamVersions VersionFetcherArray,
+	constraints []Constraint,
+	existingVersion VersionFetcherArray) VersionFetcherArray {
 
-	var outputVersions []*semver.Version
+	constraintsToDependencies := make(map[Constraint]VersionFetcherArray)
 
-	for _, version := range inputVersions {
-		for _, constraint := range constraints {
-			if constraint.Check(version) {
-				outputVersions = append(outputVersions, version)
-			}
-		}
-	}
-
-	return outputVersions
-}
-
-func FilterUpstreamVersionsByConstraints(id string, upstreamVersions HasVersionArray, constraints []Constraint, dependencies HasVersionArray) HasVersionArray {
-	constraintsToDependencies := make(map[Constraint][]HasVersion)
-
-	for _, dependency := range dependencies {
+	for _, dependency := range existingVersion {
 		for _, constraint := range constraints {
 			if constraint.Check(dependency) {
 				constraintsToDependencies[constraint] = append(constraintsToDependencies[constraint], dependency)
@@ -91,7 +85,7 @@ func FilterUpstreamVersionsByConstraints(id string, upstreamVersions HasVersionA
 		}
 	}
 
-	constraintsToInputVersion := make(map[Constraint][]HasVersion)
+	constraintsToInputVersion := make(map[Constraint][]VersionFetcher)
 
 	for _, version := range upstreamVersions {
 		for _, constraint := range constraints {
@@ -106,7 +100,7 @@ func FilterUpstreamVersionsByConstraints(id string, upstreamVersions HasVersionA
 		LogAllVersions(id, constraintDescription, versions)
 	}
 
-	constraintsToOutputVersions := make(map[Constraint][]HasVersion)
+	constraintsToOutputVersions := make(map[Constraint][]VersionFetcher)
 
 	for constraint, upstreamVersionsForConstraint := range constraintsToInputVersion {
 		existingDependencies := constraintsToDependencies[constraint]
@@ -114,7 +108,7 @@ func FilterUpstreamVersionsByConstraints(id string, upstreamVersions HasVersionA
 	ConstraintsToInputVersionLoop:
 		for _, upstreamVersionForConstraint := range upstreamVersionsForConstraint {
 			for _, existingDependency := range existingDependencies {
-				if upstreamVersionForConstraint.GetVersion().LessThan(existingDependency.GetVersion()) || upstreamVersionForConstraint.GetVersion().Equal(existingDependency.GetVersion()) {
+				if upstreamVersionForConstraint.Version().LessThan(existingDependency.Version()) || upstreamVersionForConstraint.Version().Equal(existingDependency.Version()) {
 					continue ConstraintsToInputVersionLoop
 				}
 			}
@@ -122,18 +116,21 @@ func FilterUpstreamVersionsByConstraints(id string, upstreamVersions HasVersionA
 		}
 	}
 
-	var outputVersions []HasVersion
+	var outputVersions []VersionFetcher
 
 	for constraint, constraintsToOutputVersion := range constraintsToOutputVersions {
 		sort.Slice(constraintsToOutputVersion, func(i, j int) bool {
-			return constraintsToOutputVersion[i].GetVersion().LessThan(constraintsToOutputVersion[j].GetVersion())
+			return constraintsToOutputVersion[i].Version().LessThan(constraintsToOutputVersion[j].Version())
 		})
 
 		if constraint.Patches < len(constraintsToOutputVersion) {
 			constraintsToOutputVersion = constraintsToOutputVersion[len(constraintsToOutputVersion)-constraint.Patches:]
 		}
 
-		constraintDescription := fmt.Sprintf("for constraint %s, after limiting for %d patches", constraint.Constraint.String(), constraint.Patches)
+		constraintDescription := fmt.Sprintf("newer than '%s' for constraint %s, after limiting for %d patches",
+			constraintsToDependencies[constraint].GetNewestVersion(),
+			constraint.Constraint.String(),
+			constraint.Patches)
 		LogAllVersions(id, constraintDescription, constraintsToOutputVersion)
 
 		outputVersions = append(outputVersions, constraintsToOutputVersion...)
@@ -142,8 +139,8 @@ func FilterUpstreamVersionsByConstraints(id string, upstreamVersions HasVersionA
 	if len(constraints) < 1 {
 	ZeroConstraintsLoop:
 		for _, upstreamVersion := range upstreamVersions {
-			for _, dependency := range dependencies {
-				if upstreamVersion.GetVersion().LessThan(dependency.GetVersion()) || upstreamVersion.GetVersion().Equal(dependency.GetVersion()) {
+			for _, dependency := range existingVersion {
+				if upstreamVersion.Version().LessThan(dependency.Version()) || upstreamVersion.Version().Equal(dependency.Version()) {
 					continue ZeroConstraintsLoop
 				}
 			}

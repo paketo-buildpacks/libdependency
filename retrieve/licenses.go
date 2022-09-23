@@ -13,6 +13,7 @@ import (
 
 type DecompressArtifactFunc func(artifact io.Reader, destination string) error
 
+// LookupLicenses uses licensedb to detect licenses contained within a compressed directory
 func LookupLicenses(sourceURL string, f DecompressArtifactFunc) []interface{} {
 	// getting the dependency artifact from sourceURL
 	resp, err := http.Get(sourceURL)
