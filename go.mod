@@ -7,12 +7,12 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/anchore/packageurl-go v0.1.1-0.20220428202044-a072fa3cb6d7
 	github.com/go-enry/go-license-detector/v4 v4.3.0
-	github.com/joshuatcasey/collections v0.3.0
+	github.com/joshuatcasey/collections v0.4.0
 	github.com/onsi/gomega v1.20.2
 	github.com/paketo-buildpacks/occam v0.13.2
 	github.com/paketo-buildpacks/packit/v2 v2.5.0
 	github.com/sclevine/spec v1.4.0
-	golang.org/x/exp v0.0.0-20220827204233-334a2380cb91
+	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
 )
 
 require (
@@ -65,7 +65,7 @@ require (
 	github.com/xanzy/ssh-agent v0.2.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.8-0.20211004125949-5bd84dd9b33b // indirect
 	gonum.org/v1/gonum v0.7.0 // indirect
