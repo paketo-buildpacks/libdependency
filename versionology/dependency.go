@@ -26,17 +26,21 @@ func NewDependency(configMetadataDependency cargo.ConfigMetadataDependency, targ
 	}
 }
 
-func NewDependencyArray(configMetadataDependency cargo.ConfigMetadataDependency, target string) ([]Dependency, error) {
-	dependency, err := NewDependency(configMetadataDependency, target)
-	if err != nil {
-		return []Dependency{}, err
-	}
-
-	return []Dependency{dependency}, nil
-}
-
 func (d Dependency) Version() *semver.Version {
 	return d.SemverVersion
+}
+
+func NewDependencyArray(configMetadataDependency cargo.ConfigMetadataDependency, targets ...string) ([]Dependency, error) {
+	var dependencies []Dependency
+	for _, target := range targets {
+		dependency, err := NewDependency(configMetadataDependency, target)
+		if err != nil {
+			return nil, err
+		}
+		dependencies = append(dependencies, dependency)
+	}
+
+	return dependencies, nil
 }
 
 // Versions will return an array of strings that represents each version of the input
