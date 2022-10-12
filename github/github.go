@@ -79,9 +79,7 @@ func getReleasesFromGithub(githubToken, org, repo string) (versionology.VersionF
 		}
 
 		for _, release := range githubReleaseNames {
-			if version, err := SanitizeGithubReleaseName(release); err != nil {
-				return versionology.NewVersionFetcherArray(), err
-			} else {
+			if version, err := SanitizeGithubReleaseName(release); err == nil {
 				allVersions = append(allVersions, version)
 			}
 		}

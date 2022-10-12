@@ -33,6 +33,22 @@ func testGithubReleases(t *testing.T, context spec.G, it spec.S) {
 			})
 		})
 
+		context("curl/curl", func() {
+			it.Before(func() {
+				allVersionsFunc = github.GetAllVersions(os.Getenv("GIT_TOKEN"), "curl", "curl")
+			})
+
+			it("will return a list of github releases", func() {
+				// https://github.com/curl/curl/releases
+				fromGithub, err := allVersionsFunc()
+				Expect(err).NotTo(HaveOccurred())
+				Expect(fromGithub).NotTo(BeNil())
+
+				Expect(fromGithub.GetVersionStrings()).To(ContainElements("7.78.0", "7.64.0"))
+				Expect(len(fromGithub) > 40).To(BeTrue())
+			})
+		})
+
 		context("failure cases", func() {
 			context("non-existing org/space", func() {
 				it.Before(func() {
