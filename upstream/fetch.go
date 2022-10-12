@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+
+	"github.com/paketo-buildpacks/packit/v2/fs"
 )
 
 func GetAndUnmarshal(url string, v any) error {
@@ -29,4 +33,37 @@ func GetAndUnmarshal(url string, v any) error {
 	}
 
 	return nil
+}
+
+func GetSHA256OfRemoteFile(sourceURL string) (string, error) {
+	resp, err := http.Get(sourceURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to query url: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("failed to query url %s with: status code %d", sourceURL, resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	tempDir, err := os.MkdirTemp("", "temp")
+	if err != nil {
+		return "", err
+	}
+
+	defer os.RemoveAll(tempDir)
+
+	tempFilePath := filepath.Join(tempDir, "temp-file")
+	err = os.WriteFile(tempFilePath, body, os.ModePerm)
+	if err != nil {
+		return "", err
+	}
+
+	calculator := fs.NewChecksumCalculator()
+	return calculator.Sum(tempFilePath)
 }
