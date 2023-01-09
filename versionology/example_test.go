@@ -26,7 +26,7 @@ func ExampleLogAllVersions() {
 	//]
 }
 
-func ExampleLogAllVersions_OneVersion() {
+func ExampleLogAllVersions_oneVersion() {
 	array, err := versionology.NewSimpleVersionFetcherArray("888.777.666")
 	if err != nil {
 		panic(err)
