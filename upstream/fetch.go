@@ -20,6 +20,11 @@ func GetAndUnmarshal(url string, v any) error {
 	if err != nil {
 		return err
 	}
+
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to query url %s with: status code %d", url, response.StatusCode)
+	}
+
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)

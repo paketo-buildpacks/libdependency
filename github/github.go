@@ -62,6 +62,11 @@ func getReleasesFromGithub(githubToken, org, repo string) (versionology.VersionF
 			return versionology.NewVersionFetcherArray(), err
 		}
 
+		if res.StatusCode != http.StatusOK {
+			return versionology.NewVersionFetcherArray(),
+				fmt.Errorf("failed to query url %s with: status code %d", urlString, res.StatusCode)
+		}
+
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			return versionology.NewVersionFetcherArray(), err

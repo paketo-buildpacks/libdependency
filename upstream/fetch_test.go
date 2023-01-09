@@ -1,6 +1,9 @@
 package upstream_test
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/joshuatcasey/libdependency/upstream"
@@ -11,6 +14,50 @@ import (
 
 func testFetch(t *testing.T, context spec.G, it spec.S) {
 	Expect := NewWithT(t).Expect
+
+	context("GetAndUnmarshal", func() {
+		var api *httptest.Server
+		it.Before(func() {
+			api = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				switch req.URL.Path {
+
+				case "/some-json":
+					w.WriteHeader(http.StatusOK)
+					fmt.Fprintf(w, `{
+						"id": 1,
+						"name": "Some Name"
+					}`)
+
+				case "/nonexistent":
+					w.WriteHeader(http.StatusNotFound)
+
+				default:
+					t.Fatal("unknown request")
+				}
+			}))
+		})
+
+		it("unmarshals valid JSON", func() {
+			resp := struct {
+				ID   int    `json:"id"`
+				Name string `json:"name"`
+			}{}
+
+			err := upstream.GetAndUnmarshal(fmt.Sprintf("%s/some-json", api.URL), &resp)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(resp.ID).To(Equal(1))
+			Expect(resp.Name).To(Equal("Some Name"))
+		})
+
+		context("failure cases", func() {
+			it("returns error when file not found", func() {
+				err := upstream.GetAndUnmarshal(fmt.Sprintf("%s/nonexistent", api.URL), struct{}{})
+				Expect(err).To(MatchError(fmt.Sprintf("failed to query url %s/nonexistent with: status code 404", api.URL)))
+			})
+		})
+
+	})
 
 	context("GetSHA256OfRemoteFile", func() {
 		it("works for curl", func() {
