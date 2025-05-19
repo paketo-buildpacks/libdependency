@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/joshuatcasey/libdependency/upstream"
+	"github.com/paketo-buildpacks/libdependency/upstream"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"

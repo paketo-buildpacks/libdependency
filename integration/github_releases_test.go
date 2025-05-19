@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/joshuatcasey/libdependency/github"
-	"github.com/joshuatcasey/libdependency/retrieve"
 	. "github.com/onsi/gomega"
+	"github.com/paketo-buildpacks/libdependency/github"
+	"github.com/paketo-buildpacks/libdependency/retrieve"
 	"github.com/sclevine/spec"
 )
 

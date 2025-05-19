@@ -3,7 +3,7 @@ package retrieve_test
 import (
 	"testing"
 
-	"github.com/joshuatcasey/libdependency/retrieve"
+	"github.com/paketo-buildpacks/libdependency/retrieve"
 	"github.com/sclevine/spec"
 
 	. "github.com/onsi/gomega"

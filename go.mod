@@ -1,4 +1,4 @@
-module github.com/joshuatcasey/libdependency
+module github.com/paketo-buildpacks/libdependency
 
 go 1.19
 

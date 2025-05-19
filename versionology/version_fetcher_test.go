@@ -3,8 +3,8 @@ package versionology_test
 import (
 	"testing"
 
-	"github.com/joshuatcasey/libdependency/versionology"
 	. "github.com/onsi/gomega"
+	"github.com/paketo-buildpacks/libdependency/versionology"
 	"github.com/sclevine/spec"
 )
 

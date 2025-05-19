@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/joshuatcasey/libdependency/buildpack_config"
-	"github.com/joshuatcasey/libdependency/retrieve"
-	"github.com/joshuatcasey/libdependency/versionology"
+	"github.com/paketo-buildpacks/libdependency/buildpack_config"
+	"github.com/paketo-buildpacks/libdependency/retrieve"
+	"github.com/paketo-buildpacks/libdependency/versionology"
 )
 
 func ExampleGetNewVersionsForId() {

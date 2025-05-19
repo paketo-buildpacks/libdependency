@@ -10,8 +10,8 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/joshuatcasey/collections"
-	"github.com/joshuatcasey/libdependency/retrieve"
-	"github.com/joshuatcasey/libdependency/versionology"
+	"github.com/paketo-buildpacks/libdependency/retrieve"
+	"github.com/paketo-buildpacks/libdependency/versionology"
 )
 
 type GithubReleaseNamesDTO struct {

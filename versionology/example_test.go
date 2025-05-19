@@ -1,7 +1,7 @@
 package versionology_test
 
 import (
-	"github.com/joshuatcasey/libdependency/versionology"
+	"github.com/paketo-buildpacks/libdependency/versionology"
 )
 
 func ExampleLogAllVersions() {
