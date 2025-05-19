@@ -4,7 +4,7 @@ import (
 	"sort"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/joshuatcasey/collections"
+	"github.com/paketo-buildpacks/libdependency/collections"
 )
 
 // VersionFetcher exists to allow buildpack authors to use a type of their own choosing when passing structs

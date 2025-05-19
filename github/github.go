@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/joshuatcasey/collections"
+	"github.com/paketo-buildpacks/libdependency/collections"
 	"github.com/paketo-buildpacks/libdependency/retrieve"
 	"github.com/paketo-buildpacks/libdependency/versionology"
 )

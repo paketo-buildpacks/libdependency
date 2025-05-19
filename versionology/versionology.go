@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/joshuatcasey/collections"
+	"github.com/paketo-buildpacks/libdependency/collections"
 )
 
 // VersionFetcherToString translates from an array of VersionFetcher to an array of strings.
