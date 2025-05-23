@@ -1,0 +1,25 @@
+[metadata]
+  [[metadata.dependencies]]
+    id = "dep1"
+    stacks = ["stack1"]
+    version = "1.0.0"
+
+  [[metadata.dependencies]]
+    id = "dep1"
+    stacks = ["stack1", "stack2"]
+    version = "1.1.0"
+
+  [[metadata.dependencies]]
+    id = "dep1"
+    stacks = ["stack1"]
+    version = "1.2.0"
+
+  [[metadata.dependencies]]
+    id = "dep1"
+    stacks = ["stack2"]
+    version = "1.2.0"
+
+  [[metadata.dependency-constraints]]
+    constraint = "1.*.*"
+    id = "dep1"
+    patches = 1
