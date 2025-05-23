@@ -1,6 +1,6 @@
 module github.com/paketo-buildpacks/libdependency
 
-go 1.19
+go 1.21
 
 // This is required because of a breaking change in a newer version
 replace github.com/ekzhu/minhash-lsh => github.com/ekzhu/minhash-lsh v0.0.0-20171225071031-5c06ee8586a1
@@ -10,7 +10,7 @@ replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013
 
 require (
 	github.com/BurntSushi/toml v1.2.1
-	github.com/Masterminds/semver/v3 v3.2.0
+	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/anchore/packageurl-go v0.1.1-0.20220428202044-a072fa3cb6d7
 	github.com/go-enry/go-license-detector/v4 v4.3.0
 	github.com/onsi/gomega v1.24.2
