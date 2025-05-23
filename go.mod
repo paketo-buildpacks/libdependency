@@ -9,7 +9,7 @@ replace github.com/ekzhu/minhash-lsh => github.com/ekzhu/minhash-lsh v0.0.0-2017
 replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221013203545-33ab36d6b304+incompatible // 22.06 branch
 
 require (
-	github.com/BurntSushi/toml v1.2.1
+	github.com/BurntSushi/toml v1.5.0
 	github.com/Masterminds/semver/v3 v3.2.0
 	github.com/anchore/packageurl-go v0.1.1-0.20220428202044-a072fa3cb6d7
 	github.com/go-enry/go-license-detector/v4 v4.3.0
