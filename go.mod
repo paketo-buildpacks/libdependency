@@ -12,7 +12,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/Masterminds/semver/v3 v3.2.0
 	github.com/anchore/packageurl-go v0.1.1-0.20220428202044-a072fa3cb6d7
-	github.com/go-enry/go-license-detector/v4 v4.3.0
+	github.com/go-enry/go-license-detector/v4 v4.3.1
 	github.com/onsi/gomega v1.24.2
 	github.com/paketo-buildpacks/occam v0.13.3
 	github.com/paketo-buildpacks/packit/v2 v2.7.0
