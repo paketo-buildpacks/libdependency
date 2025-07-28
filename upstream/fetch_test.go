@@ -75,6 +75,7 @@ func testFetch(t *testing.T, context spec.G, it spec.S) {
 		context("failure cases", func() {
 			it("returns error when file not found", func() {
 				_, err := upstream.GetSHA256OfRemoteFile("https://example.com/hello")
+				Expect(err).To(HaveOccurred())
 				Expect(err).To(MatchError("failed to query url https://example.com/hello with: status code 404"))
 			})
 		})

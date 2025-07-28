@@ -145,7 +145,7 @@ func testGithub(t *testing.T, context spec.G, it spec.S) {
 					TagName: "not a semver",
 				})
 
-				Expect(err).To(MatchError("Invalid Semantic Version"))
+				Expect(err).To(MatchError("invalid semantic version"))
 			})
 		})
 	})
