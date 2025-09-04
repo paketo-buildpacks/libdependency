@@ -9,8 +9,14 @@ import (
 
 	"github.com/paketo-buildpacks/libdependency/buildpack_config"
 	"github.com/paketo-buildpacks/libdependency/versionology"
+	"github.com/paketo-buildpacks/packit/v2/cargo"
 	"github.com/paketo-buildpacks/packit/v2/fs"
 )
+
+type Platform struct {
+	OS   string `json:"os"`
+	Arch string `json:"arch"`
+}
 
 // GetAllVersionsFunc is a function type that buildpack authors will implement and pass in to NewMetadata.
 // The implementation should return all known upstream versions of a dependency.
@@ -24,6 +30,10 @@ type GetAllVersionsFunc func() (versionology.VersionFetcherArray, error)
 // Given a versionology.VersionFetcher, the implementation must return the associated metadata for that version.
 // If there are multiple targets for the same version, return multiple versionology.Dependency.
 type GenerateMetadataFunc func(version versionology.VersionFetcher) ([]versionology.Dependency, error)
+
+type GenerateMetadataWithPlatformFunc func(version versionology.VersionFetcher, platform Platform) ([]versionology.Dependency, error)
+
+type TransformsPlatformsFunc func(platforms []Platform) []Platform
 
 // NewMetadata is the entrypoint for a buildpack to retrieve new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
@@ -56,6 +66,43 @@ func NewMetadata(id string, getAllVersions GetAllVersionsFunc, generateMetadata 
 	}
 }
 
+func NewMetadataWithPlatforms(id string, getAllVersions GetAllVersionsFunc, generateMetadata GenerateMetadataWithPlatformFunc, transformsPlatforms TransformsPlatformsFunc) {
+	buildpackTomlPath, output := FetchArgs()
+	validate(buildpackTomlPath, output)
+
+	config, err := buildpack_config.ParseBuildpackToml(buildpackTomlPath)
+	if err != nil {
+		panic(err)
+	}
+
+	newVersions, err := GetNewVersionsForId(id, config, getAllVersions)
+	if err != nil {
+		panic(err)
+	}
+
+	platforms := getPlatformsFromConfig(config)
+
+	platforms = transformsPlatforms(platforms)
+
+	var dependencies []versionology.Dependency
+
+	for _, platform := range platforms {
+
+		dependencies = append(dependencies, GenerateAllMetadataWithPlatform(newVersions, generateMetadata, platform)...)
+	}
+
+	metadataJson, err := toWorkflowJson(dependencies)
+	if err != nil {
+		panic(fmt.Errorf("unable to marshall metadata json, with error=%w", err))
+	}
+
+	if err = os.WriteFile(output, []byte(metadataJson), os.ModePerm); err != nil {
+		panic(fmt.Errorf("cannot write to %s: %w", output, err))
+	} else {
+		fmt.Printf("Wrote metadata to %s\n", output)
+	}
+}
+
 // toWorkflowJson will return a string containing JSON formatted as a GitHub workflow expects, with
 // no whitespace outside of strings.
 //
@@ -67,6 +114,19 @@ func toWorkflowJson(item any) (string, error) {
 	} else {
 		return string(bytes), nil
 	}
+}
+
+func getPlatformsFromConfig(config cargo.Config) []Platform {
+	var platforms []Platform
+
+	for _, target := range config.Targets {
+		platforms = append(platforms, Platform{
+			OS:   target.OS,
+			Arch: target.Arch,
+		})
+	}
+
+	return platforms
 }
 
 // GenerateAllMetadata is public for testing purposes only
@@ -83,6 +143,31 @@ func GenerateAllMetadata(newVersions versionology.VersionFetcherArray, generateM
 			targets = append(targets, metadatum.Target)
 		}
 		fmt.Printf("Generating metadata for %s, with targets [%s]\n", version.Version().String(), strings.Join(targets, ", "))
+		dependencies = append(dependencies, metadata...)
+	}
+	return dependencies
+}
+
+func GenerateAllMetadataWithPlatform(newVersions versionology.VersionFetcherArray, generateMetadataWithPlatform GenerateMetadataWithPlatformFunc, platform Platform) []versionology.Dependency {
+
+	var dependencies []versionology.Dependency
+	for _, version := range newVersions {
+		metadata, err := generateMetadataWithPlatform(version, platform)
+		if err != nil {
+			panic(err)
+		}
+
+		var targets []string
+		for _, metadatum := range metadata {
+			targets = append(targets, metadatum.Target)
+		}
+
+		fmt.Printf("Generating metadata for %s, platform %s/%s, with stacks [%s]\n",
+			version.Version().String(),
+			platform.OS,
+			platform.Arch,
+			strings.Join(targets, ", "))
+
 		dependencies = append(dependencies, metadata...)
 	}
 	return dependencies
