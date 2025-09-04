@@ -11,4 +11,7 @@ See: [Buildpack Dependency Management Improvement Overview RFC](https://github.c
 ## Retrieval
 
 The `retrieve` subpackage has an entrypoint func called `NewMetadata` that takes in a buildpack id.
+
+In addition the `retrieve` subpackage has an entrypoint func called `NewMetadataWithPlatform` which supports multi-arch dependency updates that takes in a buildpack id.
+
 See the `godoc` for that package for additional information.
