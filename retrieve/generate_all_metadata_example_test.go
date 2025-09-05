@@ -38,3 +38,36 @@ func ExampleGenerateAllMetadata() {
 	// Generating metadata for 7.8.9, with targets [target1, target2, target3]
 
 }
+
+func ExampleGenerateAllMetadataWithPlatform() {
+
+	versions, _ := versionology.NewSimpleVersionFetcherArray("1.2.3", "4.5.6", "7.8.9")
+
+	generateMetadataWithPlatform := func(version versionology.VersionFetcher, platform retrieve.Platform) ([]versionology.Dependency, error) {
+		dep := cargo.ConfigMetadataDependency{ID: "dep-id", Version: version.Version().String()}
+
+		switch version.Version().String() {
+		case "1.2.3":
+			return versionology.NewDependencyArray(dep, "target1")
+		case "4.5.6":
+			dep1, _ := versionology.NewDependency(dep, "target1")
+			dep2, _ := versionology.NewDependency(dep, "target2")
+			return []versionology.Dependency{dep1, dep2}, nil
+		case "7.8.9":
+			dep1, _ := versionology.NewDependency(dep, "target1")
+			dep2, _ := versionology.NewDependency(dep, "target2")
+			dep3, _ := versionology.NewDependency(dep, "target3")
+			return []versionology.Dependency{dep1, dep2, dep3}, nil
+		default:
+			panic("unknown version")
+		}
+	}
+
+	retrieve.GenerateAllMetadataWithPlatform(versions, generateMetadataWithPlatform, retrieve.Platform{OS: "linux", Arch: "amd64"})
+
+	// Output:
+	// Generating metadata for 1.2.3, platform linux/amd64, with stacks [target1]
+	// Generating metadata for 4.5.6, platform linux/amd64, with stacks [target1, target2]
+	// Generating metadata for 7.8.9, platform linux/amd64, with stacks [target1, target2, target3]
+
+}
