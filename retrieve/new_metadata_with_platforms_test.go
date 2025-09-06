@@ -20,7 +20,6 @@ func testNewMetadataWithPlatforms(t *testing.T, context spec.G, it spec.S) {
 
 		getAllVersions               retrieve.GetAllVersionsFunc
 		generateMetadataWithPlatform retrieve.GenerateMetadataWithPlatformFunc
-		transformPlatforms           retrieve.TransformsPlatformsFunc
 	)
 
 	it.Before(func() {
@@ -54,29 +53,10 @@ func testNewMetadataWithPlatforms(t *testing.T, context spec.G, it spec.S) {
 
 				return versionology.NewDependencyArray(dependency, "linux-64")
 			}
-
-			transformPlatforms = func(platforms []retrieve.Platform) []retrieve.Platform {
-				var transformed []retrieve.Platform
-
-				if len(platforms) == 0 {
-					platforms = append(platforms, retrieve.Platform{
-						OS:   "linux",
-						Arch: "amd64",
-					})
-				}
-
-				for i := range platforms {
-					if platforms[i].Arch == "amd64" {
-						platforms[i].Arch = "x64"
-					}
-					transformed = append(transformed, platforms[i])
-				}
-				return transformed
-			}
 		})
 
 		it("should generate metadata.json in the output dir", func() {
-			retrieve.NewMetadataWithPlatforms("fake-dependency-id", getAllVersions, generateMetadataWithPlatform, transformPlatforms)
+			retrieve.NewMetadataWithPlatforms("fake-dependency-id", getAllVersions, generateMetadataWithPlatform)
 
 			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
 	[
@@ -106,29 +86,10 @@ func testNewMetadataWithPlatforms(t *testing.T, context spec.G, it spec.S) {
 
 				return versionology.NewDependencyArray(dependency, "jammy")
 			}
-
-			transformPlatforms = func(platforms []retrieve.Platform) []retrieve.Platform {
-				var transformed []retrieve.Platform
-
-				if len(platforms) == 0 {
-					platforms = append(platforms, retrieve.Platform{
-						OS:   "linux",
-						Arch: "amd64",
-					})
-				}
-
-				for i := range platforms {
-					if platforms[i].Arch == "amd64" {
-						platforms[i].Arch = "x64"
-					}
-					transformed = append(transformed, platforms[i])
-				}
-				return transformed
-			}
 		})
 
 		it("should only generate metadata for the two newest versions", func() {
-			retrieve.NewMetadataWithPlatforms("python", getAllVersions, generateMetadataWithPlatform, transformPlatforms)
+			retrieve.NewMetadataWithPlatforms("python", getAllVersions, generateMetadataWithPlatform)
 
 			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
 	[
@@ -161,29 +122,10 @@ func testNewMetadataWithPlatforms(t *testing.T, context spec.G, it spec.S) {
 
 				return versionology.NewDependencyArray(dependency, "jammy")
 			}
-
-			transformPlatforms = func(platforms []retrieve.Platform) []retrieve.Platform {
-				var transformed []retrieve.Platform
-
-				if len(platforms) == 0 {
-					platforms = append(platforms, retrieve.Platform{
-						OS:   "linux",
-						Arch: "amd64",
-					})
-				}
-
-				for i := range platforms {
-					if platforms[i].Arch == "amd64" {
-						platforms[i].Arch = "x64"
-					}
-					transformed = append(transformed, platforms[i])
-				}
-				return transformed
-			}
 		})
 
 		it("all versions are found in the metadata.json", func() {
-			retrieve.NewMetadataWithPlatforms("not a real dependency id", getAllVersions, generateMetadataWithPlatform, transformPlatforms)
+			retrieve.NewMetadataWithPlatforms("not a real dependency id", getAllVersions, generateMetadataWithPlatform)
 
 			Expect(output).To(matchers.BeAFileMatching(MatchJSON(`
 	[

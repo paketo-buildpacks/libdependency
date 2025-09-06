@@ -33,8 +33,6 @@ type GenerateMetadataFunc func(version versionology.VersionFetcher) ([]versionol
 
 type GenerateMetadataWithPlatformFunc func(version versionology.VersionFetcher, platform Platform) ([]versionology.Dependency, error)
 
-type TransformsPlatformsFunc func(platforms []Platform) []Platform
-
 // NewMetadata is the entrypoint for a buildpack to retrieve new versions and the metadata thereof.
 // Given a way to retrieve all versions (getNewVersions) and a way to generate metadata for a version (generateMetadata),
 // this function will take in the dependency workflow inputs and the dependency workflow outputs
@@ -66,7 +64,7 @@ func NewMetadata(id string, getAllVersions GetAllVersionsFunc, generateMetadata 
 	}
 }
 
-func NewMetadataWithPlatforms(id string, getAllVersions GetAllVersionsFunc, generateMetadata GenerateMetadataWithPlatformFunc, transformsPlatforms TransformsPlatformsFunc) {
+func NewMetadataWithPlatforms(id string, getAllVersions GetAllVersionsFunc, generateMetadata GenerateMetadataWithPlatformFunc) {
 	buildpackTomlPath, output := FetchArgs()
 	validate(buildpackTomlPath, output)
 
@@ -75,19 +73,28 @@ func NewMetadataWithPlatforms(id string, getAllVersions GetAllVersionsFunc, gene
 		panic(err)
 	}
 
+	// We set by default the targets to linux/amd64 if no targets are specified in the buildpack.toml
+	if len(config.Targets) == 0 {
+		config.Targets = []cargo.ConfigTarget{
+			{
+				OS:   "linux",
+				Arch: "amd64",
+			},
+		}
+	}
+
 	newVersions, err := GetNewVersionsForId(id, config, getAllVersions)
 	if err != nil {
 		panic(err)
 	}
 
-	platforms := getPlatformsFromConfig(config)
-
-	platforms = transformsPlatforms(platforms)
-
 	var dependencies []versionology.Dependency
 
-	for _, platform := range platforms {
-
+	for _, target := range config.Targets {
+		platform := Platform{
+			OS:   target.OS,
+			Arch: target.Arch,
+		}
 		dependencies = append(dependencies, GenerateAllMetadataWithPlatform(newVersions, generateMetadata, platform)...)
 	}
 
@@ -114,19 +121,6 @@ func toWorkflowJson(item any) (string, error) {
 	} else {
 		return string(bytes), nil
 	}
-}
-
-func getPlatformsFromConfig(config cargo.Config) []Platform {
-	var platforms []Platform
-
-	for _, target := range config.Targets {
-		platforms = append(platforms, Platform{
-			OS:   target.OS,
-			Arch: target.Arch,
-		})
-	}
-
-	return platforms
 }
 
 // GenerateAllMetadata is public for testing purposes only
