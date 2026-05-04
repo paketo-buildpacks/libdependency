@@ -7,7 +7,7 @@ replace github.com/ekzhu/minhash-lsh => github.com/ekzhu/minhash-lsh v0.0.0-2017
 
 require (
 	github.com/BurntSushi/toml v1.5.0
-	github.com/Masterminds/semver/v3 v3.4.0
+	github.com/Masterminds/semver/v3 v3.5.0
 	github.com/anchore/packageurl-go v0.1.1-0.20250220190351-d62adb6e1115
 	github.com/go-enry/go-license-detector/v4 v4.3.0
 	github.com/onsi/gomega v1.37.0
