@@ -6,7 +6,7 @@ go 1.24.5
 replace github.com/ekzhu/minhash-lsh => github.com/ekzhu/minhash-lsh v0.0.0-20171225071031-5c06ee8586a1
 
 require (
-	github.com/BurntSushi/toml v1.5.0
+	github.com/BurntSushi/toml v1.6.0
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/anchore/packageurl-go v0.1.1-0.20250220190351-d62adb6e1115
 	github.com/go-enry/go-license-detector/v4 v4.3.0
