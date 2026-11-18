@@ -29,7 +29,7 @@ func LookupLicenses(sourceURL string, f DecompressArtifactFunc) []interface{} {
 	if err != nil {
 		panic(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	err = f(resp.Body, tempDir)
 	if err != nil {
