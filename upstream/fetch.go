@@ -25,7 +25,7 @@ func GetAndUnmarshal(url string, v any) error {
 		return fmt.Errorf("failed to query url %s with: status code %d", url, response.StatusCode)
 	}
 
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -49,7 +49,7 @@ func GetSHA256OfRemoteFile(sourceURL string) (string, error) {
 		return "", fmt.Errorf("failed to query url %s with: status code %d", sourceURL, resp.StatusCode)
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -61,7 +61,7 @@ func GetSHA256OfRemoteFile(sourceURL string) (string, error) {
 		return "", err
 	}
 
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	tempFilePath := filepath.Join(tempDir, "temp-file")
 	err = os.WriteFile(tempFilePath, body, os.ModePerm)

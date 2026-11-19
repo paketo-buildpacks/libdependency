@@ -23,7 +23,7 @@ func testFetch(t *testing.T, context spec.G, it spec.S) {
 
 				case "/some-json":
 					w.WriteHeader(http.StatusOK)
-					fmt.Fprintf(w, `{
+					_, _ = fmt.Fprintf(w, `{
 						"id": 1,
 						"name": "Some Name"
 					}`)

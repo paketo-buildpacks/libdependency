@@ -1,6 +1,7 @@
 package versionology_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
@@ -85,6 +86,41 @@ func testVersionology(t *testing.T, context spec.G, it spec.S) {
 			filteredVersions := versionology.FilterUpstreamVersionsByConstraints("dep", upstreamVersions, constraints, dependencies)
 
 			Expect(filteredVersions.GetVersionStrings()).To(ConsistOf("6.1.3", "6.1.4", "6.1.5", "6.1.6", "7.0.5", "7.0.6"))
+		})
+	})
+
+	context("Dependency JSON", func() {
+		it("keeps target when marshalling", func() {
+			dependency, err := versionology.NewDependency(cargo.ConfigMetadataDependency{
+				ID:      "dep",
+				Version: "1.2.3",
+			}, "jammy")
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := json.Marshal(dependency)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(MatchJSON(`{"id": "dep", "version": "1.2.3", "target": "jammy"}`))
+		})
+
+		it("omits target when it is empty", func() {
+			dependency, err := versionology.NewDependency(cargo.ConfigMetadataDependency{
+				ID:      "dep",
+				Version: "1.2.3",
+			}, "")
+			Expect(err).NotTo(HaveOccurred())
+
+			content, err := json.Marshal(dependency)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(content).To(MatchJSON(`{"id": "dep", "version": "1.2.3"}`))
+		})
+
+		it("keeps target when unmarshalling", func() {
+			var dependency versionology.Dependency
+			Expect(json.Unmarshal([]byte(`{"id": "dep", "version": "1.2.3", "target": "jammy"}`), &dependency)).To(Succeed())
+
+			Expect(dependency.ID).To(Equal("dep"))
+			Expect(dependency.ConfigMetadataDependency.Version).To(Equal("1.2.3"))
+			Expect(dependency.Target).To(Equal("jammy"))
 		})
 	})
 }
